@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SweepSwap Admin Dashboard</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #4a6bdf;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --sidebar-width: 250px;
+            --sidebar-bg: #2c3e50;
+            --sidebar-hover: #34495e;
+            --topbar-height: 70px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .sidebar.collapsed {
+            width: 80px;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            background-color: #1a252f;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .sidebar-header h3 {
+            color: white;
+            font-size: 22px;
+            margin: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .sidebar.collapsed .sidebar-header h3 {
+            opacity: 0;
+        }
+        
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .sidebar.collapsed .toggle-btn {
+            transform: rotate(180deg);
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .menu-item {
+            display: block;
+            padding: 15px 20px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s;
+            position: relative;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-item:hover {
+            background-color: var(--sidebar-hover);
+            border-left-color: var(--primary-color);
+            text-decoration: none;
+            color: white;
+        }
+        
+        .menu-item.active {
+            background-color: var(--sidebar-hover);
+            border-left-color: var(--primary-color);
+            color: white;
+        }
+        
+        .menu-item i {
+            width: 30px;
+            text-align: center;
+            margin-right: 10px;
+            transition: margin 0.3s;
+        }
+        
+        .sidebar.collapsed .menu-item i {
+            margin-right: 0;
+        }
+        
+        .sidebar.collapsed .menu-item span {
+            display: none;
+        }
+        
+        /* Topbar Styles */
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: var(--sidebar-width);
+            right: 0;
+            height: var(--topbar-height);
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 999;
+            transition: left 0.3s;
+        }
+        
+        .sidebar.collapsed + .content-wrapper .topbar {
+            left: 80px;
+        }
+        
+        .search-bar {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 10px 40px 10px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 107, 223, 0.1);
+        }
+        
+        .search-bar i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-color);
+        }
+        
+        .topbar-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .notification-icon {
+            position: relative;
+            font-size: 20px;
+            color: var(--secondary-color);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .notification-icon:hover {
+            color: var(--primary-color);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger-color);
+            color: white;
+            font-size: 10px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 25px;
+            transition: background-color 0.3s;
+        }
+        
+        .user-menu:hover {
+            background-color: #f5f7fa;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin: 0;
+        }
+        
+        .user-role {
+            font-size: 12px;
+            color: var(--secondary-color);
+            margin: 0;
+        }
+        
+        /* Main Content */
+        .content-wrapper {
+            margin-left: var(--sidebar-width);
+            padding-top: var(--topbar-height);
+            min-height: 100vh;
+            transition: margin-left 0.3s;
+        }
+        
+        .sidebar.collapsed + .content-wrapper {
+            margin-left: 80px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: var(--dark-color);
+        }
+        
+        /* Dashboard Cards */
+        .dashboard-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            height: 100%;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .card-icon.primary {
+            background-color: rgba(74, 107, 223, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .card-icon.success {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+        }
+        
+        .card-icon.warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .card-icon.danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .card-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .card-label {
+            color: var(--secondary-color);
+            font-size: 14px;
+        }
+        
+        .card-change {
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 10px;
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 15px;
+        }
+        
+        .card-change.positive {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+        }
+        
+        .card-change.negative {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger-color);
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .chart-options {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chart-option {
+            padding: 5px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 12px;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .chart-option.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* Recent Orders Table */
+        .table-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .btn-view-all {
+            padding: 8px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-view-all:hover {
+            background-color: #3a5bc7;
+            transform: translateY(-2px);
+        }
+        
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .custom-table th {
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 600;
+            color: var(--secondary-color);
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+        
+        .custom-table td {
+            padding: 15px;
+            border-bottom: 1px solid #f5f7fa;
+        }
+        
+        .custom-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .order-id {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .customer-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .customer-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .order-status {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+        
+        .status-delivered {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+        }
+        
+        .status-pending {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .status-cancelled {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger-color);
+        }
+        
+        /* Top Products */
+        .product-card {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        
+        .product-card:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .product-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+        
+        .product-details {
+            flex: 1;
+        }
+        
+        .product-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .product-category {
+            font-size: 12px;
+            color: var(--secondary-color);
+        }
+        
+        .product-stats {
+            text-align: right;
+        }
+        
+        .product-sales {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .product-revenue {
+            font-size: 12px;
+            color: var(--secondary-color);
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                left: -250px;
+            }
+            
+            .sidebar.show {
+                left: 0;
+            }
+            
+            .content-wrapper {
+                margin-left: 0;
+            }
+            
+            .topbar {
+                left: 0;
+            }
+            
+            .mobile-toggle {
+                display: block !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .page-title {
+                font-size: 24px;
+            }
+            
+            .dashboard-card {
+                margin-bottom: 20px;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            .custom-table {
+                min-width: 600px;
+            }
+        }
+        
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--dark-color);
+            cursor: pointer;
+            margin-right: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>SwapHub</h3>
+            <button class="toggle-btn" id="toggleSidebar">
+                <i class="fas fa-angle-left"></i>
+            </button>
+        </div>
+        <div class="sidebar-menu">
+            <a href="#" class="menu-item active">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Products</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Orders</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-users"></i>
+                <span>Customers</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Swaps</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-tags"></i>
+                <span>Categories</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-percentage"></i>
+                <span>Discounts</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-comments"></i>
+                <span>Reviews</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <!-- Topbar -->
+        <div class="topbar">
+            <button class="mobile-toggle" id="mobileToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="search-bar">
+                <input type="text" placeholder="Search...">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="topbar-menu">
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </div>
+                <div class="notification-icon">
+                    <i class="fas fa-envelope"></i>
+                    <span class="notification-badge">5</span>
+                </div>
+                <div class="user-menu">
+                    <img src="https://picsum.photos/seed/admin123/40/40.jpg" alt="Admin" class="user-avatar">
+                    <div class="user-info">
+                        <p class="user-name">John Admin</p>
+                        <p class="user-role">Administrator</p>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <h1 class="page-title">Dashboard Overview</h1>
+            
+            <!-- Dashboard Cards -->
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="dashboard-card">
+                        <div class="card-icon primary">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="card-value">$24,568</div>
+                        <div class="card-label">Total Revenue</div>
+                        <span class="card-change positive">
+                            <i class="fas fa-arrow-up"></i> 12.5%
+                        </span>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="dashboard-card">
+                        <div class="card-icon success">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="card-value">1,428</div>
+                        <div class="card-label">Total Orders</div>
+                        <span class="card-change positive">
+                            <i class="fas fa-arrow-up"></i> 8.3%
+                        </span>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="dashboard-card">
+                        <div class="card-icon warning">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="card-value">3,842</div>
+                        <div class="card-label">Total Customers</div>
+                        <span class="card-change positive">
+                            <i class="fas fa-arrow-up"></i> 5.7%
+                        </span>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="dashboard-card">
+                        <div class="card-icon danger">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="card-value">524</div>
+                        <div class="card-label">Total Products</div>
+                        <span class="card-change negative">
+                            <i class="fas fa-arrow-down"></i> 2.1%
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sales Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">Sales Analytics</h3>
+                    <div class="chart-options">
+                        <button class="chart-option active">Week</button>
+                        <button class="chart-option">Month</button>
+                        <button class="chart-option">Year</button>
+                    </div>
+                </div>
+                <canvas id="salesChart" height="100"></canvas>
+            </div>
+            
+            <div class="row">
+                <!-- Recent Orders -->
+                <div class="col-lg-8 mb-4">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Recent Orders</h3>
+                            <button class="btn-view-all">View All</button>
+                        </div>
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Product</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="order-id">#ORD-001</td>
+                                    <td>
+                                        <div class="customer-info">
+                                            <img src="https://picsum.photos/seed/user1/35/35.jpg" alt="Customer" class="customer-avatar">
+                                            <span>Sarah Johnson</span>
+                                        </div>
+                                    </td>
+                                    <td>Wireless Headphones</td>
+                                    <td>Jun 15, 2023</td>
+                                    <td>$89.99</td>
+                                    <td><span class="order-status status-delivered">Delivered</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="order-id">#ORD-002</td>
+                                    <td>
+                                        <div class="customer-info">
+                                            <img src="https://picsum.photos/seed/user2/35/35.jpg" alt="Customer" class="customer-avatar">
+                                            <span>Mike Wilson</span>
+                                        </div>
+                                    </td>
+                                    <td>Smart Watch</td>
+                                    <td>Jun 14, 2023</td>
+                                    <td>$249.99</td>
+                                    <td><span class="order-status status-pending">Pending</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="order-id">#ORD-003</td>
+                                    <td>
+                                        <div class="customer-info">
+                                            <img src="https://picsum.photos/seed/user3/35/35.jpg" alt="Customer" class="customer-avatar">
+                                            <span>Emily Davis</span>
+                                        </div>
+                                    </td>
+                                    <td>Running Shoes</td>
+                                    <td>Jun 13, 2023</td>
+                                    <td>$129.99</td>
+                                    <td><span class="order-status status-delivered">Delivered</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="order-id">#ORD-004</td>
+                                    <td>
+                                        <div class="customer-info">
+                                            <img src="https://picsum.photos/seed/user4/35/35.jpg" alt="Customer" class="customer-avatar">
+                                            <span>Robert Brown</span>
+                                        </div>
+                                    </td>
+                                    <td>Backpack</td>
+                                    <td>Jun 12, 2023</td>
+                                    <td>$79.99</td>
+                                    <td><span class="order-status status-cancelled">Cancelled</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="order-id">#ORD-005</td>
+                                    <td>
+                                        <div class="customer-info">
+                                            <img src="https://picsum.photos/seed/user5/35/35.jpg" alt="Customer" class="customer-avatar">
+                                            <span>Jennifer Lee</span>
+                                        </div>
+                                    </td>
+                                    <td>Laptop Stand</td>
+                                    <td>Jun 11, 2023</td>
+                                    <td>$49.99</td>
+                                    <td><span class="order-status status-delivered">Delivered</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Top Products -->
+                <div class="col-lg-4 mb-4">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Top Products</h3>
+                        </div>
+                        <div class="product-card">
+                            <img src="https://picsum.photos/seed/product1/60/60.jpg" alt="Product" class="product-image">
+                            <div class="product-details">
+                                <div class="product-name">Wireless Headphones</div>
+                                <div class="product-category">Electronics</div>
+                            </div>
+                            <div class="product-stats">
+                                <div class="product-sales">248 Sales</div>
+                                <div class="product-revenue">$22,315</div>
+                            </div>
+                        </div>
+                        <div class="product-card">
+                            <img src="https://picsum.photos/seed/product2/60/60.jpg" alt="Product" class="product-image">
+                            <div class="product-details">
+                                <div class="product-name">Smart Watch</div>
+                                <div class="product-category">Electronics</div>
+                            </div>
+                            <div class="product-stats">
+                                <div class="product-sales">187 Sales</div>
+                                <div class="product-revenue">$46,749</div>
+                            </div>
+                        </div>
+                        <div class="product-card">
+                            <img src="https://picsum.photos/seed/product3/60/60.jpg" alt="Product" class="product-image">
+                            <div class="product-details">
+                                <div class="product-name">Running Shoes</div>
+                                <div class="product-category">Fashion</div>
+                            </div>
+                            <div class="product-stats">
+                                <div class="product-sales">156 Sales</div>
+                                <div class="product-revenue">$20,278</div>
+                            </div>
+                        </div>
+                        <div class="product-card">
+                            <img src="https://picsum.photos/seed/product4/60/60.jpg" alt="Product" class="product-image">
+                            <div class="product-details">
+                                <div class="product-name">Backpack</div>
+                                <div class="product-category">Accessories</div>
+                            </div>
+                            <div class="product-stats">
+                                <div class="product-sales">142 Sales</div>
+                                <div class="product-revenue">$11,358</div>
+                            </div>
+                        </div>
+                        <div class="product-card">
+                            <img src="https://picsum.photos/seed/product5/60/60.jpg" alt="Product" class="product-image">
+                            <div class="product-details">
+                                <div class="product-name">Laptop Stand</div>
+                                <div class="product-category">Office</div>
+                            </div>
+                            <div class="product-stats">
+                                <div class="product-sales">128 Sales</div>
+                                <div class="product-revenue">$6,399</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BVB E-Store - Products</title>
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.20.15/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(to bottom right, #000000, #1a1a1a, #FFE600);
+      min-height: 100vh;
+    }
+    .bvb-logo {
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#FFE600" stroke-width="2"/><text x="12" y="16" font-size="10" text-anchor="middle" fill="#FFE600" font-family="Montserrat">BVB</text></svg>') no-repeat center;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+
+    // 🔹 Navbar
+    function Navbar({ onSearch, onCategoryChange }) {
+      const [searchTerm, setSearchTerm] = React.useState('');
+
+      const handleSearch = (e) => {
+        setSearchTerm(e.target.value);
+        onSearch(e.target.value);
+      };
+
+      return (
+        <nav className="sticky top-0 bg-gradient-to-r from-black to-gray-800 text-yellow-400 p-4 shadow-lg z-50">
+          <div className="container mx-auto flex justify-between items-center">
+            <h1 className="text-2xl font-extrabold tracking-tight flex items-center">
+              <span className="bvb-logo w-6 h-6 mr-2"></span>
+              BVB E-Store
+            </h1>
+            <div className="flex items-center space-x-4">
+              <input
+                type="text"
+                placeholder="Search BVB merchandise..."
+                value={searchTerm}
+                onChange={handleSearch}
+                className="p-2 rounded-lg text-gray-800 bg-white/90 shadow focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              />
+              <select
+                onChange={(e) => onCategoryChange(e.target.value)}
+                className="p-2 rounded-lg text-gray-800 bg-white/90 shadow focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              >
+                <option value="">All Categories</option>
+                <option value="Merchandise">Merchandise</option>
+                <option value="Clothing">Clothing</option>
+                <option value="Accessories">Accessories</option>
+                <option value="Collectibles">Collectibles</option>
+              </select>
+            </div>
+          </div>
+        </nav>
+      );
+    }
+
+    // 🔹 Product Listing
+    function ProductListing({ products, searchTerm, selectedCategory, addToCart, addToWishlist }) {
+      const filteredProducts = products.filter(product =>
+        (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         product.category.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (selectedCategory === '' || product.category === selectedCategory)
+      );
+
+      return (
+        <div className="p-6">
+          <h2 className="text-3xl font-bold mb-4 text-yellow-400 flex items-center">
+            <span className="bvb-logo w-6 h-6 mr-2"></span>
+            BVB Merchandise
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {filteredProducts.map(product => (
+              <div key={product.id} className="bg-black/90 p-6 rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition border border-yellow-400">
+                <h3 className="text-xl font-semibold text-yellow-400">{product.name}</h3>
+                <p className="text-white">${product.price.toFixed(2)}</p>
+                <p className="text-sm text-gray-300">Category: {product.category}</p>
+                <p className="text-sm text-gray-300">In Stock: {product.stock}</p>
+                <p className="text-sm text-gray-400 italic">{product.type}</p>
+                <div className="mt-4 flex space-x-3">
+                  <button
+                    onClick={() => addToCart(product)}
+                    className="flex-1 bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-4 py-2 rounded-lg hover:bg-yellow-500 transition font-bold"
+                  >
+                    Add to Cart
+                  </button>
+                  <button
+                    onClick={() => addToWishlist(product)}
+                    className="flex-1 bg-gray-700 text-yellow-400 px-4 py-2 rounded-lg hover:bg-gray-600 transition font-bold"
+                  >
+                    Wishlist
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // 🔹 Add Product Form
+    function AddProductForm({ onAddProduct }) {
+      const [newProduct, setNewProduct] = React.useState({
+        name: '',
+        price: '',
+        category: '',
+        stock: '',
+        type: 'Sell'
+      });
+
+      const handleChange = (e) => {
+        const { name, value } = e.target;
+        setNewProduct(prev => ({ ...prev, [name]: value }));
+      };
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!newProduct.name || !newProduct.price) {
+          alert("Please fill in product name and price.");
+          return;
+        }
+        onAddProduct({ ...newProduct, id: Date.now(), price: parseFloat(newProduct.price), stock: parseInt(newProduct.stock) || 1 });
+        setNewProduct({ name: '', price: '', category: '', stock: '', type: 'Sell' });
+      };
+
+      return (
+        <div className="p-6 bg-black/80 border-t border-yellow-400">
+          <h2 className="text-2xl font-bold text-yellow-400 mb-4">➕ Add Product</h2>
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input name="name" value={newProduct.name} onChange={handleChange} placeholder="Product Name" className="p-2 rounded text-black" />
+            <input name="price" type="number" value={newProduct.price} onChange={handleChange} placeholder="Price" className="p-2 rounded text-black" />
+            <select name="category" value={newProduct.category} onChange={handleChange} className="p-2 rounded text-black">
+              <option value="">Select Category</option>
+              <option value="Merchandise">Merchandise</option>
+              <option value="Clothing">Clothing</option>
+              <option value="Accessories">Accessories</option>
+              <option value="Collectibles">Collectibles</option>
+            </select>
+            <input name="stock" type="number" value={newProduct.stock} onChange={handleChange} placeholder="Stock Qty" className="p-2 rounded text-black" />
+            <select name="type" value={newProduct.type} onChange={handleChange} className="p-2 rounded text-black">
+              <option value="Sell">Sell</option>
+              <option value="Swap">Swap</option>
+            </select>
+            <button type="submit" className="bg-yellow-400 text-black font-bold px-4 py-2 rounded hover:bg-yellow-500">Add Product</button>
+          </form>
+        </div>
+      );
+    }
+
+    // 🔹 Main Page
+    function ProductListingPage() {
+      const [searchTerm, setSearchTerm] = React.useState('');
+      const [selectedCategory, setSelectedCategory] = React.useState('');
+      const [products, setProducts] = React.useState([
+        { id: 1, name: "BVB Official Match Ball", price: 149.99, category: "Merchandise", stock: 10, type: "Sell" },
+        { id: 2, name: "BVB Home Jersey", price: 89.99, category: "Clothing", stock: 50, type: "Sell" },
+        { id: 3, name: "BVB Scarf", price: 29.99, category: "Accessories", stock: 100, type: "Sell" },
+        { id: 4, name: "BVB Signed Poster", price: 199.99, category: "Collectibles", stock: 20, type: "Sell" },
+        { id: 5, name: "BVB Cap", price: 24.99, category: "Accessories", stock: 75, type: "Swap" },
+      ]);
+
+      const addToCart = (product) => alert(`${product.name} added to cart!`);
+      const addToWishlist = (product) => alert(`${product.name} added to wishlist!`);
+      const addProduct = (product) => setProducts(prev => [...prev, product]);
+
+      return (
+        <div>
+          <Navbar onSearch={setSearchTerm} onCategoryChange={setSelectedCategory} />
+          <div className="container mx-auto py-6">
+            <ProductListing
+              products={products}
+              searchTerm={searchTerm}
+              selectedCategory={selectedCategory}
+              addToCart={addToCart}
+              addToWishlist={addToWishlist}
+            />
+            <AddProductForm onAddProduct={addProduct} />
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<ProductListingPage />);
+  </script>
+</body>
+</html>

@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Product Details - UCL Collection</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap");
+
+      body {
+        background: linear-gradient(135deg, #0a0e27 0%, #000000 100%);
+        color: #e6f1ff;
+        font-family: "Montserrat", sans-serif;
+        min-height: 100vh;
+        padding: 20px 0;
+      }
+
+      .container {
+        max-width: 1000px;
+      }
+
+      .btn-secondary {
+        background: linear-gradient(45deg, #1a1f3a, #0f1529);
+        border: 1px solid rgba(217, 165, 102, 0.3);
+        color: #d9a566;
+        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .btn-secondary:hover {
+        background: linear-gradient(45deg, #252d4a, #1a1f3a);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(217, 165, 102, 0.2);
+        color: #ffffff;
+      }
+
+      #product-details {
+        background: linear-gradient(145deg, #0f1729, #050a15);
+        border-radius: 20px;
+        border: 1px solid rgba(217, 165, 102, 0.2);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+        position: relative;
+      }
+
+      #product-details::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(90deg, #d9a566, #ffffff, #0055a4);
+        box-shadow: 0 0 15px rgba(217, 165, 102, 0.7);
+      }
+
+      .card-title {
+        font-weight: 800;
+        font-size: 36px;
+        color: #ffffff;
+        margin-bottom: 25px;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(217, 165, 102, 0.2);
+      }
+
+      .card-text {
+        color: #a8b2d1;
+        font-size: 18px;
+        margin-bottom: 20px;
+        line-height: 1.6;
+      }
+
+      .card-text.fw-bold {
+        color: #d9a566;
+        font-size: 28px;
+        font-weight: 800;
+        text-shadow: 0 2px 10px rgba(217, 165, 102, 0.4);
+        margin: 30px 0;
+      }
+
+      .card-text.text-muted {
+        color: #d9a566; /* Changed to golden color */
+        font-style: italic;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(217, 165, 102, 0.2);
+        font-weight: 600; /* Made it bolder */
+      }
+
+      .card-text.text-muted::before {
+        content: "\f007";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        margin-right: 10px;
+        color: #d9a566;
+        font-size: 18px;
+      }
+
+      .btn {
+        border: none;
+        font-weight: 700;
+        border-radius: 12px;
+        padding: 15px 25px;
+        transition: all 0.3s ease;
+        margin-bottom: 15px;
+        font-size: 16px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.2);
+        transition: all 0.5s ease;
+      }
+
+      .btn:hover::before {
+        left: 100%;
+      }
+
+      .btn-success {
+        background: linear-gradient(45deg, #2e7d32, #4caf50);
+        color: #ffffff;
+      }
+
+      .btn-success:hover {
+        background: linear-gradient(45deg, #1b5e20, #388e3c);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+      }
+
+      .btn-warning {
+        background: linear-gradient(45deg, #d9a566, #e6c080);
+        color: #0a0e27;
+      }
+
+      .btn-warning:hover {
+        background: linear-gradient(45deg, #c89550, #d9b070);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(217, 165, 102, 0.4);
+      }
+
+      .btn-primary {
+        background: linear-gradient(45deg, #0055a4, #0073e6);
+        color: #ffffff;
+      }
+
+      .btn-primary:hover {
+        background: linear-gradient(45deg, #004090, #0060c0);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 85, 164, 0.4);
+      }
+
+      .btn-danger {
+        background: linear-gradient(45deg, #a50044, #c50050);
+        color: #ffffff;
+      }
+
+      .btn-danger:hover {
+        background: linear-gradient(45deg, #800036, #a00040);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(165, 0, 68, 0.4);
+      }
+
+      .d-flex.gap-2 {
+        margin-bottom: 20px;
+      }
+
+      .ucl-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #d9a566, #b8941f);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(217, 165, 102, 0.5);
+        z-index: 10;
+      }
+
+      .ucl-badge i {
+        color: #0a0e27;
+        font-size: 28px;
+      }
+
+      .product-image-container {
+        position: relative;
+        width: 100%;
+        margin-bottom: 30px;
+        border-radius: 15px;
+        border: 1px solid rgba(217, 165, 102, 0.2);
+        overflow: hidden;
+        background: #050a15;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .product-image {
+        max-width: 100%;
+        max-height: 600px;
+        object-fit: contain;
+        transition: all 0.5s ease;
+        display: block;
+      }
+
+      .product-image-container:hover .product-image {
+        transform: scale(1.02);
+      }
+
+      .detail-row {
+        display: flex;
+        margin-bottom: 15px;
+      }
+
+      .detail-label {
+        font-weight: 700;
+        color: #d9a566;
+        width: 150px;
+        font-size: 18px;
+      }
+
+      .detail-value {
+        color: #a8b2d1;
+        font-size: 18px;
+        flex-grow: 1;
+      }
+
+      /* Rating Section Styles */
+      .rating-section {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(217, 165, 102, 0.2);
+      }
+
+      .rating-section h4 {
+        color: #ffffff;
+        font-weight: 700;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .average-rating {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+      }
+
+      .stars {
+        display: flex;
+        margin-right: 15px;
+      }
+
+      .star {
+        color: #d9a566;
+        font-size: 24px;
+        margin-right: 5px;
+      }
+
+      .star.empty {
+        color: rgba(217, 165, 102, 0.3);
+      }
+
+      .rating-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #d9a566;
+        margin-right: 10px;
+      }
+
+      .rating-count {
+        color: #8892b0;
+        font-size: 16px;
+      }
+
+      .user-rating {
+        margin-bottom: 20px;
+      }
+
+      .user-rating h5 {
+        color: #ffffff;
+        font-weight: 600;
+        margin-bottom: 15px;
+        font-size: 18px;
+      }
+
+      .rating-input {
+        display: flex;
+        margin-bottom: 15px;
+      }
+
+      .rating-input .star {
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .rating-input .star:hover {
+        transform: scale(1.1);
+      }
+
+      /* Report Button Styles */
+      .report-section {
+        margin-top: 30px;
+      }
+
+      /* Modal Styles */
+      .modal-content {
+        background: linear-gradient(145deg, #0f1729, #050a15);
+        border: 1px solid rgba(217, 165, 102, 0.3);
+        border-radius: 15px;
+        color: #e6f1ff;
+      }
+
+      .modal-header {
+        border-bottom: 1px solid rgba(217, 165, 102, 0.2);
+        padding: 20px;
+      }
+
+      .modal-title {
+        color: #ffffff;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .modal-body {
+        padding: 20px;
+      }
+
+      .form-control,
+      .form-select {
+        background-color: #0a0e27;
+        border: 1px solid rgba(217, 165, 102, 0.3);
+        color: #e6f1ff;
+        border-radius: 8px;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: #d9a566;
+        box-shadow: 0 0 0 0.25rem rgba(217, 165, 102, 0.25);
+        background-color: #0f1729;
+        color: #ffffff;
+      }
+
+      .form-label {
+        color: #d9a566;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+      .modal-footer {
+        border-top: 1px solid rgba(217, 165, 102, 0.2);
+        padding: 15px 20px;
+      }
+
+      .btn-close {
+        filter: invert(1);
+        opacity: 0.8;
+      }
+
+      @media (max-width: 768px) {
+        .card-title {
+          font-size: 28px;
+        }
+
+        .card-text {
+          font-size: 16px;
+        }
+
+        .card-text.fw-bold {
+          font-size: 24px;
+        }
+
+        .btn {
+          padding: 12px 20px;
+          font-size: 14px;
+        }
+
+        .product-image {
+          max-height: 400px;
+        }
+
+        .detail-label {
+          width: 120px;
+          font-size: 16px;
+        }
+
+        .detail-value {
+          font-size: 16px;
+        }
+
+        .star {
+          font-size: 20px;
+        }
+
+        .rating-value {
+          font-size: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container mt-4">
+      <a href="list.html" class="btn btn-secondary mb-3">
+        <i class="fas fa-arrow-left"></i> Back to Collection
+      </a>
+
+      <div id="product-details" class="card p-4 shadow-sm">
+        <div class="ucl-badge">
+          <i class="fas fa-star"></i>
+        </div>
+
+        <div class="product-image-container">
+          <img
+            id="product-image"
+            class="product-image"
+            src=""
+            alt="Product Image"
+          />
+        </div>
+
+        <h3 id="product-name" class="card-title"></h3>
+
+        <div class="detail-row">
+          <div class="detail-label">Description:</div>
+          <div id="product-description" class="detail-value"></div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-label">Category:</div>
+          <div id="product-category" class="detail-value"></div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-label">Condition:</div>
+          <div id="product-condition" class="detail-value"></div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-label">Price:</div>
+          <div id="product-price" class="detail-value fw-bold"></div>
+        </div>
+
+        <p id="product-seller" class="card-text text-muted"></p>
+
+        <!-- Rating Section -->
+        <div class="rating-section">
+          <h4>Customer Ratings</h4>
+          <div class="average-rating">
+            <div class="stars" id="average-stars">
+              <!-- Stars will be generated by JS -->
+            </div>
+            <span class="rating-value" id="rating-value">0.00</span>
+            <span class="rating-count"
+              >(<span id="rating-count">0</span> reviews)</span
+            >
+          </div>
+
+          <div class="user-rating" id="user-rating-section">
+            <h5>Rate this product</h5>
+            <div class="rating-input" id="user-rating-input">
+              <i class="fas fa-star star" data-rating="1"></i>
+              <i class="fas fa-star star" data-rating="2"></i>
+              <i class="fas fa-star star" data-rating="3"></i>
+              <i class="fas fa-star star" data-rating="4"></i>
+              <i class="fas fa-star star" data-rating="5"></i>
+            </div>
+            <button class="btn btn-primary btn-sm" id="submit-rating">
+              Submit Rating
+            </button>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex gap-2 mt-3">
+          <button
+            class="btn btn-success flex-fill"
+            id="add-to-cart"
+            onclick="addToCart()"
+          >
+            <i class="fas fa-cart-plus"></i> Add to Cart
+          </button>
+          <button
+            class="btn btn-warning flex-fill"
+            id="add-to-wishlist"
+            onclick="event.stopPropagation(); addToWishlist()"
+          >
+            <i class="fas fa-heart"></i> Wishlist
+          </button>
+        </div>
+
+        <div class="d-flex gap-2 mt-2">
+          <a
+            href="../message.html"
+            class="btn btn-primary flex-fill"
+            id="message-seller"
+          >
+            <i class="fas fa-comment"></i> Message Seller
+          </a>
+          <button
+            class="btn btn-danger flex-fill"
+            id="report-product"
+            data-bs-toggle="modal"
+            data-bs-target="#reportModal"
+          >
+            <i class="fas fa-flag"></i> Report
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div
+      class="modal fade"
+      id="reportModal"
+      tabindex="-1"
+      aria-labelledby="reportModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="reportModalLabel">Report Product</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="report-form">
+              <div class="mb-3">
+                <label for="report-reason" class="form-label">Reason</label>
+                <select class="form-select" id="report-reason" required>
+                  <option value="" selected disabled>Select a reason</option>
+                  <option value="inappropriate">Inappropriate content</option>
+                  <option value="spam">Spam</option>
+                  <option value="fraud">Fraudulent listing</option>
+                  <option value="copyright">Copyright infringement</option>
+                  <option value="other">Others</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="report-description" class="form-label"
+                  >Description</label
+                >
+                <textarea
+                  class="form-control"
+                  id="report-description"
+                  rows="4"
+                  placeholder="Please provide more details about your report..."
+                ></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button type="button" class="btn btn-danger" id="submit-report">
+              Submit Report
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/Front-end/javascripts/products.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id");
+      console.log(id);
+
+      ///////////
+      //////////
+      /////////
+
+      // Modified fetchProduct to include image
+      async function fetchProduct(id) {
+        try {
+          const res = await fetch(`${API_URL}/products/${id}`);
+          if (!res.ok) throw new Error("Product not found");
+          const p = await res.json();
+
+          document.getElementById("product-name").textContent =
+            p.name || "Unnamed Product";
+          document.getElementById("product-description").textContent =
+            p.description || "No description available.";
+          document.getElementById("product-category").textContent =
+            p.category || "N/A";
+          document.getElementById("product-condition").textContent = p.is_used
+            ? "Used"
+            : "New";
+          document.getElementById("product-price").textContent = `$${
+            p.price || "N/A"
+          }`;
+          document.getElementById("product-seller").textContent = `Sold by: ${
+            p.user?.name || "Unknown Seller"
+          }`;
+          document.getElementById("product-image").src = p.images
+            ? `http://127.0.0.1:8000${p.images}`
+            : "https://via.placeholder.com/800x600?text=No+Image+Available";
+
+          const currentUserId = localStorage.getItem("user_id");
+          if (
+            p.user &&
+            currentUserId &&
+            parseInt(currentUserId) === p.user.id
+          ) {
+            document.getElementById("add-to-cart").style.display = "none";
+            document.getElementById("add-to-wishlist").style.display = "none";
+            document.getElementById("message-seller").style.display = "none";
+            document.getElementById("report-product").style.display = "none";
+            document.getElementById("user-rating-section").style.display =
+              "none";
+          } else if (p.user?.id) {
+            document.getElementById("product-details").dataset.sellerId =
+              p.user.id;
+            fetchProductRatings(p.user.id);
+          }
+        } catch (error) {
+          console.error("Error fetching product:", error);
+          document.getElementById("product-details").innerHTML = `
+      <div class="text-center py-5">
+        <h3>Product Not Found</h3>
+        <p>The product you're looking for doesn't exist.</p>
+        <a href="list.html" class="btn btn-primary">Back to Collection</a>
+      </div>
+    `;
+        }
+      }
+// Fetch and display product ratings
+async function fetchAndDisplayRatings(userId) {
+  try {
+    const res = await fetch(`${API_URL}/users/${userId}/ratings`);
+    const ratings = res.ok ? await res.json() : { average_rating: 0, total_ratings: 0 };
+
+    // Update average rating display
+    console.log(ratings)
+    document.getElementById("rating-value").textContent = ratings.average_rating.toFixed(2);
+    document.getElementById("rating-count").textContent = ratings.total_ratings;
+
+    // Render stars for average rating
+    renderStars("average-stars", ratings.average_rating);
+
+    // Check if the current user has already rated
+    const token = localStorage.getItem("auth_token");
+    if (!token) {
+      document.getElementById("user-rating-section").style.display = "none";
+      return;
+    }
+
+    const userRating = ratings.ratings?.find(
+      (r) => r.user_id === parseInt(localStorage.getItem("user_id"))
+    );
+    if (userRating) {
+      document.getElementById("user-rating-input").innerHTML = `
+        <div class="alert alert-info">You rated this seller: ${userRating.rating} stars</div>
+      `;
+      document.getElementById("submit-rating").style.display = "none";
+    }
+  } catch (error) {
+    console.error("Error fetching ratings:", error);
+    // Display default values if the API fails
+    document.getElementById("rating-value").textContent = "0.00";
+    document.getElementById("rating-count").textContent = "0";
+    renderStars("average-stars", 0);
+  }
+}
+
+// Render stars for a given container and rating
+function renderStars(containerId, rating) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = ""; // Clear existing stars
+  const maxStars = 5;
+
+  for (let i = 1; i <= maxStars; i++) {
+    const star = document.createElement("i");
+    star.classList.add("fas", "fa-star", "star");
+    if (i > Math.floor(rating)) {
+      star.classList.add("empty");
+    }
+    container.appendChild(star);
+  }
+}
+
+// Update fetchProduct to call fetchAndDisplayRatings
+async function fetchProduct(id) {
+  try {
+    const res = await fetch(`${API_URL}/products/${id}`);
+    if (!res.ok) throw new Error("Product not found");
+    const p = await res.json();
+
+    document.getElementById("product-name").textContent = p.name || "Unnamed Product";
+    document.getElementById("product-description").textContent =
+      p.description || "No description available.";
+    document.getElementById("product-category").textContent = p.category || "N/A";
+    document.getElementById("product-condition").textContent = p.is_used ? "Used" : "New";
+    document.getElementById("product-price").textContent = `$${p.price || "N/A"}`;
+    document.getElementById("product-seller").textContent = `Sold by: ${p.user?.name || "Unknown Seller"}`;
+    document.getElementById("product-image").src = p.images
+      ? `http://127.0.0.1:8000${p.images}`
+      : "https://via.placeholder.com/800x600?text=No+Image+Available";
+
+    const currentUserId = localStorage.getItem("user_id");
+    if (p.user && currentUserId && parseInt(currentUserId) === p.user.id) {
+      document.getElementById("add-to-cart").style.display = "none";
+      document.getElementById("add-to-wishlist").style.display = "none";
+      document.getElementById("message-seller").style.display = "none";
+      document.getElementById("report-product").style.display = "none";
+      document.getElementById("user-rating-section").style.display = "none";
+    } else if (p.user?.id) {
+      document.getElementById("product-details").dataset.sellerId = p.user.id;
+      fetchAndDisplayRatings(p.user.id); // Fetch ratings for the seller
+    }
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    document.getElementById("product-details").innerHTML = `
+      <div class="text-center py-5">
+        <h3>Product Not Found</h3>
+        <p>The product you're looking for doesn't exist.</p>
+        <a href="list.html" class="btn btn-primary">Back to Collection</a>
+      </div>
+    `;
+  }
+}
+
+// Rating submission logic
+document.addEventListener("DOMContentLoaded", () => {
+  const stars = document.querySelectorAll("#user-rating-input .star");
+  let selectedRating = 0;
+
+  stars.forEach((star) => {
+    star.addEventListener("mouseover", () => {
+      const rating = parseInt(star.dataset.rating);
+      stars.forEach((s, i) => s.classList.toggle("empty", i >= rating));
+    });
+
+    star.addEventListener("click", () => {
+      selectedRating = parseInt(star.dataset.rating);
+      stars.forEach((s, i) => s.classList.toggle("empty", i >= selectedRating));
+    });
+  });
+
+  document.getElementById("user-rating-input").addEventListener("mouseleave", () => {
+    stars.forEach((s, i) => s.classList.toggle("empty", i >= selectedRating));
+  });
+
+  document.getElementById("submit-rating").addEventListener("click", async () => {
+    if (!selectedRating) {
+      alert("Please select a rating");
+      return;
+    }
+
+    const token = localStorage.getItem("auth_token");
+    if (!token) {
+      alert("Please log in to rate this seller.");
+      return;
+    }
+
+    const sellerId = document.getElementById("product-details").dataset.sellerId;
+    if (!sellerId) {
+      alert("Seller information not available.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/users/rate/${sellerId}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ rating: selectedRating }),
+      });
+
+      if (res.ok) {
+        const button = document.getElementById("submit-rating");
+        button.innerHTML = '<i class="fas fa-check"></i> Rated!';
+        button.disabled = true;
+        // Refresh ratings after submission
+        fetchAndDisplayRatings(sellerId);
+        setTimeout(() => {
+          document.getElementById("user-rating-input").innerHTML = `
+            <div class="alert alert-info">You rated this seller: ${selectedRating} stars</div>
+          `;
+          button.style.display = "none";
+        }, 1000);
+      } else {
+        alert("Failed to submit rating: " + (await res.json()).message || "Unknown error");
+      }
+    } catch (error) {
+      console.error("Error submitting rating:", error);
+      alert("Error submitting rating. Please try again.");
+    }
+  });
+});
+
+// Remove the standalone loadRatings call
+// loadRatings(1); // This is no longer needed as fetchAndDisplayRatings is called in fetchProduct
+
+// Call fetchProduct with the product ID
+fetchProduct(id);
+
+
+
+
+      // Submit report
+      // Helper function to submit a report
+async function submitReport(userId, token, reason, description) {
+  try {
+    const response = await fetch(`${API_URL}/users/${userId}/report`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ reason, description }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to submit report");
+    }
+
+    return await response.json(); // success response
+  } catch (err) {
+    console.error("Report submission error:", err.message);
+    throw err;
+  }
+}
+
+// Event listener for report submission
+document.getElementById("submit-report").addEventListener("click", async () => {
+  const reason = document.getElementById("report-reason").value;
+  const description = document.getElementById("report-description").value;
+
+  if (!reason) {
+    alert("Please select a reason for your report");
+    return;
+  }
+
+  const token = localStorage.getItem("auth_token");
+  if (!token) {
+    alert("Please log in to report this user.");
+    return;
+  }
+
+  try {
+    // 🔹 Make sure 'id' is available (from URL, JWT, or global variable)
+    const result = await submitReport(id, token, reason, description);
+
+    alert("Your report has been submitted successfully. Thank you!");
+
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById("reportModal"));
+    modal.hide();
+
+    // Reset form
+    document.getElementById("report-form").reset();
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
+// Load product/user data (assuming you already have this function)
+fetchProduct(id);
+
+
+      // Add to wishlist
+      async function addToWishlist() {
+        if (!token) {
+          alert("Please log in to add to wishlist.");
+          return;
+        }
+        try {
+          const res = await fetch(`${API_URL}/wishlist/${id}`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+          const data = await res.json();
+          if (data.success) {
+            // Show success message in a more elegant way
+            const wishlistBtn = document.getElementById("add-to-wishlist");
+            const originalText = wishlistBtn.innerHTML;
+            wishlistBtn.innerHTML = '<i class="fas fa-check"></i> Added!';
+            wishlistBtn.style.background =
+              "linear-gradient(45deg, #2e7d32, #4caf50)";
+
+            setTimeout(() => {
+              wishlistBtn.innerHTML = originalText;
+              wishlistBtn.style.background = "";
+            }, 2000);
+          } else {
+            alert(
+              "Failed to add to wishlist: " + (data.message || "Unknown error")
+            );
+          }
+        } catch (error) {
+          console.error("Error adding to wishlist:", error);
+          alert(
+            "An error occurred while adding to wishlist. Please try again."
+          );
+        }
+      }
+
+      // Add to cart
+      async function addToCart() {
+        if (!token) {
+          alert("Please log in to add to cart.");
+          return;
+        }
+        try {
+          const res = await fetch(`${API_URL}/cart/${id}`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+          const data = await res.json();
+          if (data.success) {
+            // Show success message in a more elegant way
+            const cartBtn = document.getElementById("add-to-cart");
+            const originalText = cartBtn.innerHTML;
+            cartBtn.innerHTML = '<i class="fas fa-check"></i> Added!';
+            cartBtn.style.background =
+              "linear-gradient(45deg, #2e7d32, #4caf50)";
+
+            setTimeout(() => {
+              cartBtn.innerHTML = originalText;
+              cartBtn.style.background = "";
+            }, 2000);
+          } else {
+            alert(
+              "Failed to add to cart: " + (data.message || "Unknown error")
+            );
+          }
+        } catch (error) {
+          console.error("Error adding to cart:", error);
+          alert("An error occurred while adding to cart. Please try again.");
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwapHub - Register</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-color: #fdd835; /* Dortmund Yellow */
+      --secondary-color: #000;   /* Deep Black */
+      --transition: all 0.3s ease;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--secondary-color);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .register-card {
+      background: #111;
+      border: 2px solid var(--primary-color);
+      border-radius: 15px;
+      box-shadow: 0 0 25px rgba(253, 216, 53, 0.4);
+      max-width: 420px;
+      width: 100%;
+      padding: 35px;
+      color: white;
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--primary-color);
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .tagline {
+      text-align: center;
+      color: #bbb;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+
+    .form-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--primary-color);
+    }
+
+    .input-group {
+      margin-bottom: 18px;
+    }
+
+    .input-group-text {
+      background: #222;
+      border: 1px solid #333;
+      color: var(--primary-color);
+    }
+
+    .form-control {
+      background: #222;
+      border: 1px solid #333;
+      color: #fff;
+      font-size: 14px;
+      border-radius: 8px;
+      transition: var(--transition);
+    }
+
+    .form-control:focus {
+      background: #222;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 8px rgba(253, 216, 53, 0.5);
+      color: #fff;
+    }
+
+    .btn-register {
+      background: var(--primary-color);
+      color: #000;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      width: 100%;
+      transition: var(--transition);
+      margin-top: 10px;
+    }
+
+    .btn-register:hover {
+      background: #ffeb3b;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(253, 216, 53, 0.4);
+    }
+
+    .form-footer {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+      color: #aaa;
+    }
+
+    .form-footer a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .form-footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="register-card">
+    <div class="logo"><i class="fas fa-exchange-alt"></i> SwapHub</div>
+    <p class="tagline">Join the black & yellow community ⚡</p>
+
+    <form id="registrationForm">
+      <label for="username" class="form-label">Username</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-user"></i></span>
+        <input type="text" id="username" class="form-control" placeholder="Choose a username" required>
+      </div>
+
+      <label for="email" class="form-label">Email</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+        <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+      </div>
+
+      <label for="password" class="form-label">Password</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+        <input type="password" id="password" class="form-control" placeholder="Create a password" required>
+      </div>
+
+      <label for="confirmPassword" class="form-label">Confirm Password</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+        <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm your password" required>
+      </div>
+
+      <button type="submit" class="btn btn-register">Create Account</button>
+
+      <div class="form-footer">
+        Already have an account? <a href="login.html">Login here</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  document
+    .getElementById("registrationForm")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const data = {
+        name: document.getElementById("username").value,
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value,
+      };
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+        console.log("Response:", result);
+
+        if (response.ok) {
+          alert("Registration successful!");
+          window.location.href = "login.html";
+        } else {
+          const errorMsg =
+            result?.message ||
+            (result.errors ? Object.values(result.errors).flat().join(", ") : "Unknown error");
+          alert("Registration failed: " + errorMsg);
+        }
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    });
+</script>
+
+</body>
+</html>

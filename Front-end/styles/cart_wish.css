@@ -1,0 +1,34 @@
+/* Backgrounds */
+.cart-page {
+  background: linear-gradient(135deg, #0A1D57, #A50044); /* Barcelona colors */
+  min-height: 100vh;
+}
+
+.wishlist-page {
+  background: linear-gradient(135deg, #FFFFFF, #FEBE10); /* Real Madrid vibe */
+  min-height: 100vh;
+}
+
+/* Special Text */
+.text-barca {
+  color: #A50044;
+}
+
+.text-madrid {
+  color: #0A1D57;
+}
+
+.text-gold {
+  color: #FEBE10 !important;
+}
+
+/* Cards */
+.cart-card, .wishlist-card {
+  border-radius: 15px;
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out;
+}
+
+.cart-card:hover, .wishlist-card:hover {
+  transform: scale(1.05);
+}

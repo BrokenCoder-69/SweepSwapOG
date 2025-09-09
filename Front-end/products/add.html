@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Product</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap');
+    
+    body {
+      background: linear-gradient(135deg, #0a0e27 0%, #000000 100%);
+      color: #e6f1ff;
+      font-family: 'Montserrat', sans-serif;
+      min-height: 100vh;
+      padding: 20px 0;
+    }
+    
+    .container {
+      max-width: 700px;
+    }
+    
+    h3 {
+      color: #ffffff;
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 42px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      position: relative;
+      padding-bottom: 15px;
+    }
+    
+    h3::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 4px;
+      background: linear-gradient(90deg, #d9a566, #ffffff, #0055a4);
+      border-radius: 2px;
+    }
+    
+    .card {
+      background: linear-gradient(145deg, #0f1729, #050a15);
+      border: 1px solid rgba(217, 165, 102, 0.3);
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, #d9a566, #ffffff, #0055a4);
+      box-shadow: 0 0 15px rgba(217, 165, 102, 0.7);
+    }
+    
+    .form-control, .form-select {
+      background-color: #0a0e27;
+      border: 1px solid rgba(217, 165, 102, 0.3);
+      color: #e6f1ff;
+      border-radius: 10px;
+      padding: 12px 15px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    .form-control::placeholder {
+      color: #8892b0;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: #d9a566;
+      box-shadow: 0 0 0 0.25rem rgba(217, 165, 102, 0.25);
+      background-color: #0f1729;
+      color: #ffffff;
+    }
+    
+    .form-select option {
+      background-color: #0f1729;
+      color: #e6f1ff;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(45deg, #d9a566, #e6c080);
+      border: none;
+      color: #0a0e27;
+      font-weight: 700;
+      font-size: 18px;
+      padding: 15px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(217, 165, 102, 0.4);
+      margin-top: 10px;
+    }
+    
+    .btn-primary:hover {
+      background: linear-gradient(45deg, #c89550, #d9b070);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(217, 165, 102, 0.6);
+      color: #0a0e27;
+    }
+    
+    .form-label {
+      color: #d9a566;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .ucl-badge {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, #d9a566, #b8941f);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 5px 15px rgba(217, 165, 102, 0.5);
+      z-index: 10;
+    }
+    
+    .ucl-badge i {
+      color: #0a0e27;
+      font-size: 32px;
+    }
+    
+    .form-group {
+      margin-bottom: 25px;
+    }
+    
+    .form-text {
+      color: #8892b0;
+      font-size: 14px;
+      font-style: italic;
+    }
+    
+    .file-upload-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+    
+    .file-upload-wrapper input[type=file] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      min-width: 100%;
+      min-height: 100%;
+      font-size: 100px;
+      text-align: right;
+      filter: alpha(opacity=0);
+      opacity: 0;
+      outline: none;
+      cursor: pointer;
+      display: block;
+    }
+    
+    .file-upload-label {
+      display: block;
+      padding: 12px 15px;
+      background: #0a0e27;
+      border: 1px solid rgba(217, 165, 102, 0.3);
+      border-radius: 10px;
+      color: #8892b0;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    
+    .file-upload-wrapper:hover .file-upload-label {
+      border-color: #d9a566;
+      color: #d9a566;
+    }
+    
+    .file-upload-label i {
+      margin-right: 10px;
+    }
+    
+    @media (max-width: 768px) {
+      h3 {
+        font-size: 32px;
+        margin-bottom: 30px;
+      }
+      
+      .form-control, .form-select {
+        padding: 10px 12px;
+        font-size: 14px;
+      }
+      
+      .btn-primary {
+        padding: 12px;
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container mt-5">
+  <h3>Add New Product</h3>
+  
+  <form id="addProductForm" class="card p-4 shadow-lg" enctype="multipart/form-data">
+    <div class="ucl-badge">
+      <i class="fas fa-star"></i>
+    </div>
+    
+    <div class="form-group">
+      <label for="name" class="form-label">Product Name</label>
+      <input type="text" id="name" class="form-control" placeholder="Enter product name" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="description" class="form-label">Description</label>
+      <textarea id="description" class="form-control" placeholder="Describe your product" rows="4" required></textarea>
+    </div>
+    
+    <div class="form-group">
+      <label for="category" class="form-label">Category</label>
+      <select id="category" class="form-select" required>
+        <option value="" disabled selected>Select Category</option>
+        <option value="electronics">Electronics</option>
+        <option value="fashion">Fashion</option>
+        <option value="home">Home & Kitchen</option>
+        <option value="beauty">Beauty & Personal Care</option>
+        <option value="sports">Sports & Outdoors</option>
+        <option value="books">Books & Stationery</option>
+        <option value="toys">Toys & Games</option>
+        <option value="automotive">Automotive</option>
+        <option value="grocery">Grocery & Food</option>
+        <option value="health">Health & Wellness</option>
+        <option value="others">Others</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label for="is_used" class="form-label">Condition</label>
+      <select id="is_used" class="form-select" required>
+        <option value="0">New</option>
+        <option value="1">Used</option>
+      </select>
+    </div>
+    
+    <div class="form-group" id="usage-duration-group" style="display: none;">
+      <label for="usage_duration" class="form-label">Usage Duration</label>
+      <input type="text" id="usage_duration" class="form-control" placeholder="e.g., 6 months, 1 year">
+      <div class="form-text">Provide information about how long the product has been used</div>
+    </div>
+    
+    <div class="form-group">
+      <label for="price" class="form-label">Price ($)</label>
+      <input type="number" id="price" class="form-control" placeholder="0.00" step="0.01" min="0" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="images" class="form-label">Product Image</label>
+      <div class="file-upload-wrapper">
+        <input type="file" id="images" class="form-control" accept="image/*" required>
+        <label for="images" class="file-upload-label">
+          <i class="fas fa-cloud-upload-alt"></i> Choose Image
+        </label>
+      </div>
+      <div class="form-text">Upload a clear image of your product (JPG, PNG)</div>
+    </div>
+    
+    <button type="submit" class="btn btn-primary w-100">
+      <i class="fas fa-plus-circle"></i> Add Product
+    </button>
+  </form>
+</div>
+
+<script src="/Front-end/javascripts/products.js"></script>
+<script>
+  // Show/hide usage duration field based on condition selection
+  document.getElementById('is_used').addEventListener('change', function() {
+    const usageDurationGroup = document.getElementById('usage-duration-group');
+    if (this.value === '1') {
+      usageDurationGroup.style.display = 'block';
+      document.getElementById('usage_duration').setAttribute('required', 'required');
+    } else {
+      usageDurationGroup.style.display = 'none';
+      document.getElementById('usage_duration').removeAttribute('required');
+    }
+  });
+  
+  // Update file upload label when file is selected
+  document.getElementById('images').addEventListener('change', function() {
+    const fileName = this.files[0]?.name || 'Choose Image';
+    document.querySelector('.file-upload-label').innerHTML = 
+      `<i class="fas fa-check-circle"></i> ${fileName}`;
+  });
+</script>
+</body>
+</html>

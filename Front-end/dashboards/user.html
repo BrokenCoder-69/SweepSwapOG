@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome User</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4a6bdf;
+      --secondary-color: #6c757d;
+      --success-color: #28a745;
+      --warning-color: #ffc107;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --sidebar-bg: #1e3a8a;
+      --sidebar-hover: #2b4cb8;
+      --sidebar-width: 220px;
+      --topbar-height: 60px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom right, #0a1b3b, #1e3a8a, #001233);
+      min-height: 100vh;
+      color: #fff;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: var(--sidebar-width);
+      background: var(--sidebar-bg);
+      transition: width 0.3s ease;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .sidebar.collapsed {
+      width: 70px;
+    }
+
+    .sidebar-header {
+      padding: 15px;
+      background: #001233;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-header h3 {
+      color: gold;
+      font-size: 20px;
+      margin: 0;
+      transition: opacity 0.3s;
+    }
+
+    .sidebar.collapsed .sidebar-header h3 {
+      opacity: 0;
+    }
+
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .sidebar-menu {
+      padding: 10px 0;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      color: #ecf0f1;
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+
+    .menu-item:hover, .menu-item.active {
+      background: var(--sidebar-hover);
+      color: white;
+    }
+
+    .menu-item i {
+      width: 30px;
+      text-align: center;
+      margin-right: 10px;
+    }
+
+    .sidebar.collapsed .menu-item span {
+      display: none;
+    }
+
+    /* Topbar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: var(--sidebar-width);
+      right: 0;
+      height: var(--topbar-height);
+      background: linear-gradient(90deg, #001233, #1e3a8a);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      transition: left 0.3s;
+      z-index: 999;
+    }
+
+    .sidebar.collapsed + .content-wrapper .navbar {
+      left: 70px;
+    }
+
+    .navbar-brand {
+      color: gold !important;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    /* Content */
+    .content-wrapper {
+      margin-left: var(--sidebar-width);
+      padding-top: var(--topbar-height);
+      transition: margin-left 0.3s;
+    }
+
+    .sidebar.collapsed + .content-wrapper {
+      margin-left: 70px;
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    /* Product Cards */
+    .ucl-card {
+      background: #ffffff10;
+      border: 1px solid rgba(255, 215, 0, 0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .ucl-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+    }
+
+    .product-image {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+    }
+
+    .card-body {
+      padding: 15px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .card-text {
+      font-size: 0.9rem;
+      color: #ddd;
+    }
+
+    .btn {
+      border-radius: 20px;
+      font-size: 0.9rem;
+      padding: 8px 15px;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar {
+        left: -220px;
+      }
+
+      .sidebar.show {
+        left: 0;
+      }
+
+      .content-wrapper {
+        margin-left: 0;
+      }
+
+      .navbar {
+        left: 0;
+      }
+
+      .mobile-toggle {
+        display: block !important;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .navbar-brand {
+        font-size: 1rem;
+      }
+
+      #searchInput {
+        width: 100% !important;
+        margin-top: 8px;
+      }
+
+      .ucl-card {
+        margin-bottom: 15px;
+      }
+    }
+
+    .mobile-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h3>SweepSwap</h3>
+      <button class="toggle-btn" id="toggleSidebar">
+        <i class="fas fa-angle-left"></i>
+      </button>
+    </div>
+    <div class="sidebar-menu">
+      <a href="../products/list.html" class="menu-item active"><i class="fas fa-th"></i><span>Browse</span></a>
+      <a href="../products/add.html" class="menu-item"><i class="fas fa-th"></i><span>Swap or Sell</span></a>
+    
+      <a href="#" class="menu-item"><i class="fas fa-shopping-cart"></i><span>Orders</span></a>
+      <a href="../users/wishlist.html" class="menu-item"><i class="fas fa-heart"></i><span>Wishlist</span></a>
+      <a href="../users/cart.html" class="menu-item"><i class="fas fa-shopping-bag"></i><span>Cart</span></a>
+      <a href="../users/profile.html" class="menu-item"><i class="fas fa-user"></i><span>Profile</span></a>
+
+
+
+      <a href="../message.html" class="menu-item"><i class="fas fa-user"></i><span>View Message</span></a>
+
+
+
+      <a href="#" class="menu-item" id="logoutLink"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+    </div>
+  </div>
+
+  <!-- Content Wrapper -->
+  <div class="content-wrapper">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top shadow">
+      <div class="container-fluid">
+        <button class="mobile-toggle" id="mobileToggle">
+          <i class="fas fa-bars"></i>
+        </button>
+
+
+        
+      <a class="navbar-brand" href="#">
+        <i class="fas fa-star me-2"></i> Welcome <span id="username"></span>
+      </a>
+
+
+
+
+
+        <form class="d-flex ms-auto me-3 mt-2 mt-lg-0">
+          <input class="form-control" type="search" placeholder="Search Products" id="searchInput">
+        </form>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="content">
+      <h2 class="mb-4"><i class="fas fa-th me-2"></i> Browse Merchandise</h2>
+      <div id="productList" class="row g-4"></div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Sidebar Toggle
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggleSidebar');
+    const mobileToggle = document.getElementById('mobileToggle');
+
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+    });
+
+    mobileToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('show');
+    });
+
+    // Authentication Check
+    async function checkAuth() {
+      const token = localStorage.getItem('auth_token');
+      console.log('Retrieved token:', token);
+      if (!token) {
+        console.log('No token found, redirecting to login');
+        window.location.href = '../index.html';
+        return;
+      }
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/verify-token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+          console.error('Token verification failed:', response.status, response.statusText);
+          // Comment out for testing to avoid immediate logout
+          // localStorage.removeItem('auth_token');
+          // window.location.href = '../index.html';
+          return;
+        }
+
+        const data = await response.json();
+        console.log('Verification response:', data);
+        if (!data.valid) {
+          console.log('Invalid token, redirecting to login');
+          localStorage.removeItem('auth_token');
+          window.location.href = '../index.html';
+          return;
+        }
+        console.log('Token verified successfully, loading dashboard');
+      } catch (error) {
+        console.error('Token verification error:', error.message);
+        // Comment out for testing to avoid immediate logout
+        // localStorage.removeItem('auth_token');
+        // window.location.href = '../index.html';
+      }
+    }
+
+    checkAuth();
+
+    // Logout Handler
+    document.getElementById('logoutLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('Logging out, clearing token');
+      localStorage.removeItem('auth_token');
+      window.location.href = '../index.html';
+    });
+
+    // Product Data with Images
+    const products = [
+      { id: 1, name: "UCL Official Match Ball", price: 149.99, category: "Merchandise", stock: 10, image: 'https://picsum.photos/seed/ball/200/150' },
+      { id: 2, name: "Team Jersey", price: 89.99, category: "Clothing", stock: 50, image: 'https://picsum.photos/seed/jersey/200/150' },
+      { id: 3, name: "UCL Scarf", price: 29.99, category: "Accessories", stock: 100, image: 'https://picsum.photos/seed/scarf/200/150' },
+      { id: 4, name: "Signed Poster", price: 199.99, category: "Collectibles", stock: 20, image: 'https://picsum.photos/seed/poster/200/150' }
+    ];
+
+    // Render Products
+    function renderProducts(filter = '') {
+      const list = document.getElementById('productList');
+      list.innerHTML = '';
+      products
+        .filter(p => 
+          p.name.toLowerCase().includes(filter.toLowerCase()) || 
+          p.category.toLowerCase().includes(filter.toLowerCase())
+        )
+        .forEach(p => {
+          list.innerHTML += `
+            <div class="col-12 col-sm-6 col-lg-4">
+              <div class="card ucl-card h-100">
+                <img src="${p.image}" class="product-image" alt="${p.name}">
+                <div class="card-body">
+                  <h5 class="card-title">${p.name}</h5>
+                  <p class="card-text"><strong>$${p.price.toFixed(2)}</strong></p>
+                  <p class="card-text">Category: ${p.category}</p>
+                  <p class="card-text">In Stock: ${p.stock}</p>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-success w-50">Add to Cart</button>
+                    <button class="btn btn-warning w-50">Wishlist</button>
+                  </div>
+                </div>
+              </div>
+            </div>`;
+        });
+    }
+
+    // Search Filter
+    document.getElementById('searchInput').addEventListener('input', e => {
+      renderProducts(e.target.value);
+    });
+
+    // Initial Render
+    renderProducts();
+
+    //Load user Name
+    async function loadUser() {
+  const token = localStorage.getItem("auth_token");
+  if (!token) return;
+
+  try {
+    const res = await fetch("http://127.0.0.1:8000/api/user", {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch user");
+
+    const user = await res.json();
+    console.log("Current User:", user);
+
+    // Show user name in navbar
+    document.getElementById("username").textContent = `${user.name}`;
+      } catch (err) {
+        console.error("Error loading user:", err.message);
+      }
+    }
+
+    checkAuth();
+    loadUser();
+
+
+
+  </script>
+</body>
+</html>

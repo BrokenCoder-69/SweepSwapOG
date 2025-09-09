@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Cart</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/cart_wish.css">
+</head>
+<body class="cart-page">
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold text-gold" href="#">SweepSwap</a>
+      <div>
+        <a href="wishlist.html" class="btn btn-outline-light">Wishlist</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Cart Container -->
+  <div class="container py-5">
+    <h1 class="text-center mb-4 text-light">🛒 Your Cart</h1>
+
+
+          <div id="cart-list" class="row g-4">
+                 <!-- Cards will be loaded dynamically -->
+          </div>
+
+
+
+    <div class="text-center mt-5">
+      <button class="btn btn-lg btn-success">Proceed to Checkout</button>
+    </div>
+  </div>
+
+
+  
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  
+    <script>
+    const token = localStorage.getItem("auth_token");
+
+    async function fetchCart() {
+        try {
+        
+        const res = await fetch(`http://127.0.0.1:8000/api/cart`, {
+            
+          method: 'GET',
+          headers: {
+        "Authorization": `Bearer ${token}`,
+        // Do NOT set Content-Type; browser sets it to multipart/form-data automatically
+      },
+            
+        });
+        const data = await res.json();
+
+        let html = "";
+        const currentUserId = localStorage.getItem("user_id"); // store on login
+
+
+        console.log("Current User ID:", res);
+
+
+
+        data.forEach(item => {
+            const product = item.product; // shortcut
+            const isOwner = token && currentUserId == item.user_id;
+
+            console.log(item);
+
+            html += `
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+             ${product.images ? `<img src="http://127.0.0.1:8000${product.images}" class="card-img-top" alt="${product.name}">` : ""}
+
+                <div class="card-body">
+                    <h5>${product.name}</h5>
+                    <p>${product.description ? product.description.substring(0, 50) : "No description"}...</p>
+
+                    <p><b>Category:</b> ${product.category}</p>
+                    ${product.is_used ? `<p><b>Used for:</b> ${product.usage_duration}</p>` : ""}
+
+                    <p><b>$${product.price}</b></p>
+
+                    <a href="view.html?id=${product.id}" class="btn btn-primary btn-sm">View</a>
+                    ${isOwner ? `
+                    <a href="edit.html?id=${product.id}" class="btn btn-warning btn-sm">Edit</a>
+                    <button onclick="deleteProduct(${product.id})" class="btn btn-danger btn-sm">Remove</button>
+                    ` : ""}
+                </div>
+                </div>
+            </div>
+            `;
+        });
+
+        document.getElementById("cart-list").innerHTML = html;
+
+        } catch (err) {
+        console.error("Error fetching cart:", err);
+        document.getElementById("cart-list").innerHTML = `<p class="text-danger">Failed to load cart items.</p>`;
+        }
+    }
+
+    // Example delete function
+    async function deleteProduct(cartId) {
+        if (!confirm("Remove this item from your cart?")) return;
+
+        try {
+        const res = await fetch(`http://127.0.0.1:8000/api/cart/${cartId}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+            alert("Item removed!");
+            fetchCart(); // refresh list
+        } else {
+            alert("Failed to remove item");
+        }
+        } catch (err) {
+        console.error("Delete error:", err);
+        alert("Error removing item");
+        }
+    }
+
+    // Call on page load
+    document.addEventListener("DOMContentLoaded", fetchCart);
+    </script>
+
+</body>
+</html>

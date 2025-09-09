@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - SweepSwap</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+      :root {
+        --primary-color: #6366f1;
+        --secondary-color: #f43f5e;
+        --accent-color: #fbbf24;
+        --dark-color: #1e293b;
+        --light-color: #f8fafc;
+        --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        --gradient-2: linear-gradient(135deg, #f43f5e 0%, #ec4899 100%);
+        --gradient-3: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        color: var(--dark-color);
+        background: #f8fafc;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 280px;
+        background: white;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+        z-index: 1000;
+        transition: all 0.3s ease;
+      }
+
+      .sidebar-header {
+        padding: 30px 25px;
+        background: var(--gradient-1);
+        color: white;
+      }
+
+      .sidebar-logo {
+        font-weight: 800;
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+      }
+
+      .admin-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        margin-top: 5px;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .user-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+      }
+
+      .user-details h5 {
+        margin: 0;
+        font-size: 1rem;
+      }
+
+      .user-details p {
+        margin: 0;
+        font-size: 0.875rem;
+        opacity: 0.8;
+      }
+
+      .sidebar-menu {
+        padding: 30px 0;
+      }
+
+      .menu-item {
+        display: block;
+        padding: 15px 25px;
+        color: var(--dark-color);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .menu-item:hover {
+        background: #f1f5f9;
+        color: var(--primary-color);
+      }
+
+      .menu-item.active {
+        background: #f1f5f9;
+        color: var(--primary-color);
+        font-weight: 600;
+      }
+
+      .menu-item.active::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--gradient-1);
+      }
+
+      .menu-item i {
+        width: 30px;
+        margin-right: 10px;
+      }
+
+      .menu-badge {
+        float: right;
+        background: var(--secondary-color);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+      }
+
+      /* Main Content */
+      .main-content {
+        margin-left: 280px;
+        min-height: 100vh;
+        transition: all 0.3s ease;
+      }
+
+      /* Topbar */
+      .topbar {
+        background: white;
+        padding: 20px 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--dark-color);
+      }
+
+      .search-box {
+        position: relative;
+        width: 400px;
+      }
+
+      .search-box input {
+        width: 100%;
+        padding: 10px 20px 10px 45px;
+        border: 2px solid #e2e8f0;
+        border-radius: 25px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+      }
+
+      .search-box input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+      }
+
+      .search-box i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+      }
+
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+      }
+
+      .notification-icon {
+        position: relative;
+        font-size: 1.3rem;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .notification-icon:hover {
+        color: var(--primary-color);
+      }
+
+      .notification-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: var(--secondary-color);
+        color: white;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+      }
+
+      .user-menu {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        padding: 5px 15px;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+      }
+
+      .user-menu:hover {
+        background: #f1f5f9;
+      }
+
+      .user-menu img {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+      }
+
+      /* Dashboard Content */
+      .dashboard-content {
+        padding: 30px;
+      }
+
+      .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: var(--dark-color);
+      }
+
+      .page-subtitle {
+        color: #64748b;
+        margin-bottom: 30px;
+      }
+
+      /* Stats Cards */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .stat-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+      }
+
+      .stat-card:nth-child(1) .stat-icon {
+        background: var(--gradient-1);
+      }
+
+      .stat-card:nth-child(2) .stat-icon {
+        background: var(--gradient-2);
+      }
+
+      .stat-card:nth-child(3) .stat-icon {
+        background: var(--gradient-3);
+      }
+
+      .stat-card:nth-child(4) .stat-icon {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      }
+
+      .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--dark-color);
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        color: #64748b;
+        font-size: 0.9rem;
+      }
+
+      .stat-change {
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      .stat-change.positive {
+        color: #10b981;
+      }
+
+      .stat-change.negative {
+        color: var(--secondary-color);
+      }
+
+      /* Charts Section */
+      .charts-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .chart-card {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .chart-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--dark-color);
+      }
+
+      .chart-filters {
+        display: flex;
+        gap: 10px;
+      }
+
+      .filter-btn {
+        padding: 5px 15px;
+        border: 2px solid #e2e8f0;
+        background: white;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .filter-btn.active {
+        background: var(--gradient-1);
+        color: white;
+        border-color: transparent;
+      }
+
+      /* Recent Activities */
+      .activity-list {
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .activity-item {
+        display: flex;
+        align-items: start;
+        gap: 15px;
+        padding: 15px;
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.3s ease;
+      }
+
+      .activity-item:hover {
+        background: #f8fafc;
+      }
+
+      .activity-item:last-child {
+        border-bottom: none;
+      }
+
+      .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        color: white;
+        flex-shrink: 0;
+      }
+
+      .activity-icon.user {
+        background: var(--gradient-1);
+      }
+
+      .activity-icon.listing {
+        background: var(--gradient-2);
+      }
+
+      .activity-icon.report {
+        background: var(--gradient-3);
+      }
+
+      .activity-content {
+        flex: 1;
+      }
+
+      .activity-title {
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 3px;
+      }
+
+      .activity-description {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+      }
+
+      .activity-time {
+        color: #94a3b8;
+        font-size: 0.8rem;
+      }
+
+      /* Users Table */
+      .table-card {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 30px;
+      }
+
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .table-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--dark-color);
+      }
+
+      .btn-add {
+        background: var(--gradient-1);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn-add:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+      }
+
+      .custom-table {
+        width: 100%;
+      }
+
+      .custom-table thead th {
+        background: #f8fafc;
+        border: none;
+        padding: 15px;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+      }
+
+      .custom-table tbody td {
+        padding: 15px;
+        vertical-align: middle;
+        border-color: #f1f5f9;
+      }
+
+      .user-info-table {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .user-avatar-table {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--gradient-1);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+      }
+
+      .user-details-table h6 {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--dark-color);
+      }
+
+      .user-details-table p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #64748b;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      .status-active {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .status-inactive {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .action-btn {
+        width: 35px;
+        height: 35px;
+        border-radius: 8px;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .action-btn.edit {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      .action-btn.delete {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .action-btn:hover {
+        transform: scale(1.1);
+      }
+
+      /* Pending Approvals */
+      .approvals-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+      }
+
+      .approval-card {
+        background: white;
+        border: 2px solid #f1f5f9;
+        border-radius: 15px;
+        padding: 20px;
+        transition: all 0.3s ease;
+      }
+
+      .approval-card:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .approval-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 15px;
+      }
+
+      .approval-type {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .approval-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .btn-approve {
+        flex: 1;
+        padding: 8px;
+        background: #d1fae5;
+        color: #065f46;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn-approve:hover {
+        background: #10b981;
+        color: white;
+      }
+
+      .btn-reject {
+        flex: 1;
+        padding: 8px;
+        background: #fee2e2;
+        color: #991b1b;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn-reject:hover {
+        background: var(--secondary-color);
+        color: white;
+      }
+
+      /* Responsive */
+      @media (max-width: 1200px) {
+        .charts-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .search-box {
+          width: 300px;
+        }
+      }
+
+      @media (max-width: 992px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+
+        .sidebar.active {
+          transform: translateX(0);
+        }
+
+        .main-content {
+          margin-left: 0;
+        }
+
+        .menu-toggle {
+          display: block;
+        }
+
+        .stats-grid {
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+      }
+
+      @media (max-width: 768px) {
+        .search-box {
+          display: none;
+        }
+
+        .dashboard-content {
+          padding: 20px;
+        }
+
+        .table-responsive {
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">SweepSwap Admin</div>
+        <span class="admin-badge">Administrator</span>
+        <div class="user-info">
+          <div class="user-avatar">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <div class="user-details">
+            <h5 id="adminName">Admin User</h5>
+            <p id="adminEmail">admin@sweepswap.com</p>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <a href="#" class="menu-item active">
+          <i class="fas fa-tachometer-alt"></i>
+          Dashboard
+        </a>
+        <a href="#" class="menu-item">
+          <i class="fas fa-users"></i>
+          Users Management
+          <span class="menu-badge">1,234</span>
+        </a>
+        <a href="#" class="menu-item">
+          <i class="fas fa-boxes"></i>
+          Listings Management
+          <span class="menu-badge">45</span>
+        </a>
+        <a href="#" class="menu-item">
+          <i class="fas fa-flag"></i>
+          Reports & Flags
+          <span class="menu-badge">12</span>
+        </a>
+        <a href="#" class="menu-item">
+          <i class="fas fa-chart-line"></i>
+          Analytics
+        </a>
+        <a href="#" class="menu-item">
+          <i class="fas fa-cog"></i>
+          System Settings
+        </a>
+        <a href="#" class="menu-item">
+          <i class="fas fa-file-alt"></i>
+          Content Management
+        </a>
+        <a href="#" class="menu-item">
+          <i class="fas fa-bell"></i>
+          Notifications
+        </a>
+        <a href="#" class="menu-item" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          Logout
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Topbar -->
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search users, listings..." />
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="notification-icon">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge">5</span>
+          </div>
+          <div class="user-menu">
+            <img
+              src="https://picsum.photos/seed/admin-avatar/35/35.jpg"
+              alt="Admin"
+            />
+            <span>Admin</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Content -->
+      <div class="dashboard-content">
+        <h1 class="page-title">Admin Dashboard</h1>
+        <p class="page-subtitle">Monitor and manage your SweepSwap platform</p>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-icon">
+                <i class="fas fa-users"></i>
+              </div>
+              <span class="stat-change positive">
+                <i class="fas fa-arrow-up"></i> 15%
+              </span>
+            </div>
+            <div class="stat-value">1,234</div>
+            <div class="stat-label">Total Users</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-icon">
+                <i class="fas fa-box"></i>
+              </div>
+              <span class="stat-change positive">
+                <i class="fas fa-arrow-up"></i> 23%
+              </span>
+            </div>
+            <div class="stat-value">5,678</div>
+            <div class="stat-label">Active Listings</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-icon">
+                <i class="fas fa-dollar-sign"></i>
+              </div>
+              <span class="stat-change positive">
+                <i class="fas fa-arrow-up"></i> 18%
+              </span>
+            </div>
+            <div class="stat-value">$45,678</div>
+            <div class="stat-label">Revenue</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+              </div>
+              <span class="stat-change negative">
+                <i class="fas fa-arrow-down"></i> 5%
+              </span>
+            </div>
+            <div class="stat-value">12</div>
+            <div class="stat-label">Pending Reports</div>
+          </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 class="chart-title">Platform Analytics</h3>
+              <div class="chart-filters">
+                <button class="filter-btn active" onclick="updateChart('week')">
+                  Week
+                </button>
+                <button class="filter-btn" onclick="updateChart('month')">
+                  Month
+                </button>
+                <button class="filter-btn" onclick="updateChart('year')">
+                  Year
+                </button>
+              </div>
+            </div>
+            <canvas id="analyticsChart" height="100"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 class="chart-title">Recent Activities</h3>
+            </div>
+            <div class="activity-list" id="activityList">
+              <!-- Activities will be loaded here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="table-card">
+          <div class="table-header">
+            <h2 class="table-title">Recent Users</h2>
+            <button class="btn-add">
+              <i class="fas fa-plus me-2"></i>Add User
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table class="table custom-table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Email</th>
+                  <th>Join Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+                <!-- Users will be loaded here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pending Approvals -->
+        <div class="section-card">
+          <div class="section-header">
+            <h2 class="section-title">Pending Approvals</h2>
+            <a href="#" class="btn-view-all"
+              >View All <i class="fas fa-arrow-right"></i
+            ></a>
+          </div>
+          <div class="approvals-grid" id="approvalsGrid">
+            <!-- Approvals will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  </body>
+</html>
