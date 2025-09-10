@@ -12,7 +12,31 @@ class Purchase extends Model
     protected $fillable = [
         'buyer_id',
         'product_id',
-        'amount',
+
+        // Card details
+        'card_number',
+        'expiry_date',
+        'cvv',
+        'cardholder_name',
+
+        // Mobile banking
+        'mobile_banking',
+        'payment_mobile',
+
+        // Billing info
+        'email',
+        'first_name',
+        'last_name',
+        'address',
+        'mobile',
+        'city',
+        'division',
+        'post_code',
+
+        // Prices
+        'price',
+        'delivery',
+        'service',
     ];
 
     public function buyer()

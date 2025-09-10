@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Report Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="p-4">
+
+  <div class="container">
+    <header class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Report Management</h2>
+      <button id="logout-btn" class="btn btn-outline-danger btn-sm">Logout</button>
+    </header>
+
+    <div class="mb-3">
+      <label for="status-filter" class="form-label">Filter by Status</label>
+      <select id="status-filter" class="form-select form-select-sm" style="max-width: 200px;">
+        <option value="">All</option>
+        <option value="pending">Pending</option>
+        <option value="reviewed">Reviewed</option>
+      </select>
+    </div>
+
+    <table class="table table-bordered table-striped">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Reporter</th>
+          <th>Reported</th>
+          <th>Reason</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Feedback</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="reports-table">
+        <!-- Reports will be loaded here -->
+      </tbody>
+    </table>
+
+    <p id="loading" class="text-center text-muted">Loading reports...</p>
+    <p id="no-reports" class="text-center text-muted d-none">No reports found.</p>
+  </div>
+
+  <script>
+    const API_URL = "http://localhost:8000/api";
+    const token = localStorage.getItem("auth_token");
+    const reportsTable = document.getElementById("reports-table");
+    const loading = document.getElementById("loading");
+    const noReports = document.getElementById("no-reports");
+    const statusFilter = document.getElementById("status-filter");
+
+    if (!token) {
+      window.location.href = "/admin/login.html";
+    }
+
+    // Load reports
+    async function loadReports() {
+      reportsTable.innerHTML = "";
+      loading.classList.remove("d-none");
+      noReports.classList.add("d-none");
+
+      try {
+        const status = statusFilter.value;
+        const url = status ? `${API_URL}/admin/reports?status=${status}` : `${API_URL}/admin/reports`;
+
+        const res = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}`, Accept: "application/json" }
+        });
+
+        if (!res.ok) throw new Error("Failed to load reports");
+        const reports = await res.json();
+
+        loading.classList.add("d-none");
+
+        if (reports.length === 0) {
+          noReports.classList.remove("d-none");
+          return;
+        }
+
+        reports.forEach(r => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${r.id}</td>
+            <td>${r.reporter.name} <br><small>${r.reporter.email}</small></td>
+            <td>${r.reported.name} <br><small>${r.reported.email}</small></td>
+            <td>${r.reason}</td>
+            <td>${r.description}</td>
+            <td>
+              <select class="form-select form-select-sm" id="status-${r.id}">
+                <option value="pending" ${r.status === "pending" ? "selected" : ""}>Pending</option>
+                <option value="reviewed" ${r.status === "reviewed" ? "selected" : ""}>Reviewed</option>
+              </select>
+            </td>
+            <td>
+              <textarea class="form-control form-control-sm" id="feedback-${r.id}" rows="2">${r.admin_feedback || ""}</textarea>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-primary" onclick="saveFeedback(${r.id})">Save</button>
+            </td>
+          `;
+          reportsTable.appendChild(row);
+        });
+
+      } catch (err) {
+        console.error(err);
+        loading.textContent = "❌ Error loading reports";
+      }
+    }
+
+    // Save feedback + status
+    async function saveFeedback(id) {
+      const feedback = document.getElementById(`feedback-${id}`).value;
+      const status = document.getElementById(`status-${id}`).value;
+
+      try {
+        const res = await fetch(`${API_URL}/admin/reports/feedback/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json"
+          },
+          body: JSON.stringify({ admin_feedback: feedback, status })
+        });
+
+        if (!res.ok) throw new Error("Failed to save");
+        alert("✅ Feedback saved!");
+        loadReports();
+
+      } catch (err) {
+        alert("❌ Error saving feedback");
+        console.error(err);
+      }
+    }
+
+    // Logout
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      localStorage.removeItem("admin_token");
+      window.location.href = "/admin/login.html";
+    });
+
+    // Reload when filter changes
+    statusFilter.addEventListener("change", loadReports);
+
+    // Initial load
+    loadReports();
+
+    // Make saveFeedback accessible globally
+    window.saveFeedback = saveFeedback;
+  </script>
+</body>
+</html>

@@ -71,14 +71,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('swaps/{id}/reject', [SwapController::class, 'reject']);
 
     // Purchase routes
-    Route::post('products/{productId}/buy', [PurchaseController::class, 'buy']);
+    Route::get('purchases', [PurchaseController::class, 'index']);                  // List all purchases
+    Route::post('products/buy/{productId}', [PurchaseController::class, 'buy']);   // Create a new purchase
+    Route::get('purchases/{purchase}', [PurchaseController::class, 'show']);        // Show one purchase
+    Route::put('purchases/{purchase}', [PurchaseController::class, 'update']);      // Update a purchase
+    Route::delete('purchases/{purchase}', [PurchaseController::class, 'destroy']);  // Delete a purchase
 
 
     // Ratings
     Route::post('users/rate/{id}', [RatingController::class, 'store']);
 
     // Reports
-    Route::post('users/{id}/report', [ReportController::class, 'store']);
+    Route::post('users/report/{id}', [ReportController::class, 'store']);
 
 
 
@@ -93,7 +97,7 @@ Route::get('users/{id}/ratings', [RatingController::class, 'show']);
 
 Route::middleware('auth:sanctum' , AdminMiddleware::class)->group(function () {
     Route::get('admin/reports', [ReportController::class, 'index']);
-    Route::put('admin/reports/{id}/feedback', [ReportController::class, 'feedback']);
+    Route::put('admin/reports/feedback/{id}', [ReportController::class, 'feedback']);
 
 
 

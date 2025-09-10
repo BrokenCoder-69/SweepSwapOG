@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UCL SecurePay - Modern Payment Gateway</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #7B2CBF;
+            --primary-dark: #5A189A;
+            --secondary-color: #2D2D2D;
+            --success-color: #2ECC71;
+            --error-color: #E74C3C;
+            --warning-color: #F39C12;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --border-color: #333333;
+            --bg-primary: #121212;
+            --bg-secondary: #1E1E1E;
+            --bg-card: #252525;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
+            box-shadow: var(--shadow-md);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Payment Card */
+        .payment-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .card-body {
+            padding: 2rem;
+            background: var(--bg-card);
+        }
+
+        /* Payment Methods */
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .payment-method {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--bg-secondary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .payment-method::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(123, 44, 191, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .payment-method:hover::before {
+            left: 100%;
+        }
+
+        .payment-method:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(123, 44, 191, 0.3);
+        }
+
+        .payment-method.active {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(123, 44, 191, 0.2), rgba(90, 24, 154, 0.2));
+            box-shadow: 0 0 20px rgba(123, 44, 191, 0.4);
+        }
+
+        .payment-method i {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .payment-method span {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* Form Styles */
+        .form-label {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            color: var(--text-primary); /* Ensure text color is white */
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(123, 44, 191, 0.2);
+            background: var(--bg-card);
+            color: var(--text-primary); /* Ensure text color remains white on focus */
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);
+            opacity: 1; /* Ensure placeholder is visible but distinct */
+        }
+
+        /* Ensure input text remains white during typing */
+        .form-control:not(:placeholder-shown), .form-select:not(:placeholder-shown) {
+            color: var(--text-primary);
+        }
+
+        .input-group-text {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px 0 0 8px;
+            color: var(--text-secondary);
+        }
+
+        /* Card Input */
+        .card-input-wrapper {
+            position: relative;
+        }
+
+        .card-type-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card-type-icon.show {
+            opacity: 1;
+        }
+
+        /* Security Features */
+        .security-badges {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .security-badge i {
+            color: var(--success-color);
+        }
+
+        /* Order Summary */
+        .order-summary {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.25rem;
+            font-weight: 600;
+            padding-top: 0.75rem;
+            border-top: 2px solid var(--border-color);
+            margin-top: 0.75rem;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-primary:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(123, 44, 191, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Success/Error Messages */
+        .alert {
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            display: none;
+            animation: slideIn 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: rgba(46, 204, 113, 0.1);
+            border-color: var(--success-color);
+            color: var(--success-color);
+        }
+
+        .alert-danger {
+            background: rgba(231, 76, 60, 0.1);
+            border-color: var(--error-color);
+            color: var(--error-color);
+        }
+
+        .alert-info {
+            background: rgba(52, 152, 219, 0.1);
+            border-color: #3498db;
+            color: #3498db;
+        }
+
+        /* Payment Method Specific Forms */
+        .payment-form-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .payment-form-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile Banking Styles */
+        .mobile-banking-providers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .provider-option {
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--bg-secondary);
+        }
+
+        .provider-option:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(123, 44, 191, 0.3);
+        }
+
+        .provider-option.active {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(123, 44, 191, 0.2), rgba(90, 24, 154, 0.2));
+        }
+
+        .provider-option i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .provider-option span {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* COD Info Box */
+        .cod-info {
+            background: linear-gradient(135deg, rgba(123, 44, 191, 0.1), rgba(90, 24, 154, 0.1));
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cod-info h5 {
+            color: var(--primary-color);
+            margin-bottom: 0.75rem;
+        }
+
+        .cod-info ul {
+            margin: 0;
+            padding-left: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .cod-info li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .payment-methods {
+                grid-template-columns: repeat(1, 1fr);
+            }
+
+            .mobile-banking-providers {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .card-body {
+                padding: 1.5rem;
+            }
+
+            .security-badges {
+                gap: 0.5rem;
+            }
+
+            .security-badge {
+                font-size: 0.75rem;
+                padding: 0.375rem 0.75rem;
+            }
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+        }
+
+        .modal-body {
+            padding: 2rem;
+            background: var(--bg-card);
+        }
+
+        .modal-title {
+            color: var(--text-primary);
+        }
+
+        .btn-close {
+            filter: invert(1);
+        }
+
+        /* Tooltip Styles */
+        .tooltip-inner {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+        }
+
+        /* UCL Branding Elements */
+        .ucl-accent {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(123, 44, 191, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .accent-1 {
+            top: -50px;
+            right: -50px;
+        }
+
+        .accent-2 {
+            bottom: -50px;
+            left: -50px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col">
+                    <a href="#" class="logo">
+                        <i class="fas fa-shield-alt"></i>
+                        UCL SecurePay
+                    </a>
+                </div>
+                <div class="col-auto">
+                    <span class="text-muted">University College London Payment Gateway</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="row">
+            <!-- Payment Form -->
+            <div class="col-lg-8">
+                <div class="payment-card">
+                    <div class="ucl-accent accent-1"></div>
+                    <div class="ucl-accent accent-2"></div>
+                    <div class="card-header">
+                        <h2 class="mb-0">Complete Your Payment</h2>
+                        <p class="mb-0 mt-2 opacity-75">All transactions are secure and encrypted</p>
+                    </div>
+                    <div class="card-body">
+                        <!-- Alert Messages -->
+                        <div class="alert alert-success" id="successAlert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span id="successMessage"></span>
+                        </div>
+                        <div class="alert alert-danger" id="errorAlert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span id="errorMessage"></span>
+                        </div>
+
+                        <!-- Payment Methods -->
+                        <h5 class="mb-3">Select Payment Method</h5>
+                        <div class="payment-methods">
+                            <div class="payment-method active" data-method="card">
+                                <i class="fas fa-credit-card" style="color: var(--primary-color);"></i>
+                                <span>Credit Card</span>
+                            </div>
+                            <div class="payment-method" data-method="mobile">
+                                <i class="fas fa-mobile-alt" style="color: var(--success-color);"></i>
+                                <span>Mobile Banking</span>
+                            </div>
+                            <div class="payment-method" data-method="cod">
+                                <i class="fas fa-money-bill-wave" style="color: var(--warning-color);"></i>
+                                <span>Cash on Delivery</span>
+                            </div>
+                        </div>
+
+                        <!-- Payment Form -->
+                        <form id="paymentForm">
+                            <!-- Credit Card Form -->
+                            <div id="cardForm" class="payment-form-section active">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label class="form-label">Card Number</label>
+                                        <div class="card-input-wrapper">
+                                            <input type="text" class="form-control" id="cardNumber"
+                                                   placeholder="1234 5678 9012 3456" maxlength="19">
+                                            <i class="card-type-icon" id="cardTypeIcon"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label">Expiry Date</label>
+                                        <input type="text" class="form-control" id="expiryDate"
+                                               placeholder="MM/YY" maxlength="5">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">CVV</label>
+                                        <input type="text" class="form-control" id="cvv"
+                                               placeholder="123" maxlength="4">
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label class="form-label">Cardholder Name</label>
+                                        <input type="text" class="form-control" id="cardholderName"
+                                               placeholder="John Doe">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Mobile Banking Form -->
+                            <div id="mobileForm" class="payment-form-section">
+                                <h5 class="mb-3">Select Mobile Banking Provider</h5>
+                                <div class="mobile-banking-providers">
+                                    <div class="provider-option active" data-provider="bkash">
+                                        <i class="fas fa-wallet" style="color: #e2136e;"></i>
+                                        <span>bKash</span>
+                                    </div>
+                                    <div class="provider-option" data-provider="rocket">
+                                        <i class="fas fa-rocket" style="color: #f37021;"></i>
+                                        <span>Rocket</span>
+                                    </div>
+                                    <div class="provider-option" data-provider="nagad">
+                                        <i class="fas fa-coins" style="color: #ff6600;"></i>
+                                        <span>Nagad</span>
+                                    </div>
+                                    <div class="provider-option" data-provider="upay">
+                                        <i class="fas fa-mobile-alt" style="color: #00a652;"></i>
+                                        <span>Upay</span>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label class="form-label">Mobile Number</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">+880</span>
+                                            <input type="tel" class="form-control" id="mobileNumber"
+                                                   placeholder="1XXXXXXXXX" maxlength="10">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    You will receive a confirmation message on your mobile number to complete the payment.
+                                </div>
+                            </div>
+
+                            <!-- Cash on Delivery Form -->
+                            <div id="codForm" class="payment-form-section">
+                                <div class="cod-info">
+                                    <h5><i class="fas fa-truck me-2"></i>Cash on Delivery</h5>
+                                    <ul>
+                                        <li>Pay when you receive your order</li>
+                                        <li>No additional charges for COD</li>
+                                        <li>Available in all cities</li>
+                                        <li>Delivery within 3-5 business days</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Billing Information -->
+                            <h5 class="mb-3 mt-4">Billing Information</h5>
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="email"
+                                           placeholder="john@example.com" required>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" class="form-control" id="firstName"
+                                           placeholder="John" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" id="lastName"
+                                           placeholder="Doe" required>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <label class="form-label">Address</label>
+                                    <input type="text" class="form-control" id="address"
+                                           placeholder="123 Main Street" required>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <label class="form-label">Mobile Number</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">+880</span>
+                                        <input type="tel" class="form-control" id="mobileNumber"
+                                               placeholder="1XXXXXXXXX" maxlength="10">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="form-label">City</label>
+                                    <input type="text" class="form-control" id="city"
+                                           placeholder="Dhaka" required>
+                                </div>
+                                <div class="col-3">
+                                    <label class="form-label">Division</label>
+                                    <select class="form-select" id="state" required>
+                                        <option value="">Select</option>
+                                        <option value="DHK">Dhaka</option>
+                                        <option value="CTG">Chattogram</option>
+                                        <option value="RAJ">Rajshahi</option>
+                                        <option value="KHL">Khulna</option>
+                                        <option value="SYL">Sylhet</option>
+                                        <option value="BAR">Barishal</option>
+                                        <option value="RNG">Rangpur</option>
+                                        <option value="MYM">Mymensingh</option>
+                                    </select>
+                                </div>
+                                <div class="col-3">
+                                    <label class="form-label">Post Code</label>
+                                    <input type="text" class="form-control" id="zipCode"
+                                           placeholder="1000" required>
+                                </div>
+                            </div>
+
+                            <!-- Security Features -->
+                            <div class="security-badges">
+                                <div class="security-badge">
+                                    <i class="fas fa-lock"></i>
+                                    <span>SSL Secured</span>
+                                </div>
+                                <div class="security-badge">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span>PCI DSS Compliant</span>
+                                </div>
+                                <div class="security-badge">
+                                    <i class="fas fa-user-shield"></i>
+                                    <span>256-bit Encryption</span>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-primary mt-4" id="submitBtn">
+                                <span id="btnText">Pay Now</span>
+                                <div class="spinner ms-2" id="spinner"></div>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="col-lg-4">
+                <div class="payment-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="order-summary">
+                            <div class="order-item">
+                                <span>PRICE</span>
+                                <span>৳500</span>
+                            </div>
+                            <div class="order-item">
+                                <span>DELIVERY CHARGE</span>
+                                <span>৳70</span>
+                            </div>
+                            <div class="order-item">
+                                <span>SERVICE FEE</span>
+                                <span>৳10</span>
+                            </div>
+                            <div class="order-total">
+                                <span>Total</span>
+                                <span>৳580</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">Payment Successful!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                    <h4 class="mt-3">Thank You!</h4>
+                    <p class="text-muted">Your payment has been processed successfully.</p>
+                    <div class="bg-secondary rounded p-3 mt-3">
+                        <p class="mb-1"><strong>Transaction ID:</strong> <span id="transactionId"></span></p>
+                        <p class="mb-0"><strong>Amount:</strong> ৳3,548</p>
+                    </div>
+                    <button type="button" class="btn btn-primary mt-3" data-bs-dismiss="modal">Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    // Payment Method Selection
+const paymentMethods = document.querySelectorAll('.payment-method');
+const paymentFormSections = document.querySelectorAll('.payment-form-section');
+let selectedMethod = 'card';
+let selectedMobileProvider = 'bkash';
+
+// Configuration - Update these values according to your setup
+const API_BASE_URL = '/api'; // Adjust this to your API base URL
+const urlParams = new URLSearchParams(window.location.search);
+const PRODUCT_ID = urlParams.get('productId');
+
+const BUYER_ID =  localStorage.getItem("user_id"); // You need to set this dynamically based on the logged-in user
+
+paymentMethods.forEach(method => {
+    method.addEventListener('click', function() {
+        paymentMethods.forEach(m => m.classList.remove('active'));
+        this.classList.add('active');
+        selectedMethod = this.dataset.method;
+
+        // Hide all form sections
+        paymentFormSections.forEach(section => section.classList.remove('active'));
+
+        // Show relevant form section
+        if (selectedMethod === 'card') {
+            document.getElementById('cardForm').classList.add('active');
+        } else if (selectedMethod === 'mobile') {
+            document.getElementById('mobileForm').classList.add('active');
+        } else if (selectedMethod === 'cod') {
+            document.getElementById('codForm').classList.add('active');
+        }
+
+        // Update button text based on payment method
+        updateButtonText();
+    });
+});
+
+// Mobile Banking Provider Selection
+const providerOptions = document.querySelectorAll('.provider-option');
+providerOptions.forEach(option => {
+    option.addEventListener('click', function() {
+        providerOptions.forEach(o => o.classList.remove('active'));
+        this.classList.add('active');
+        selectedMobileProvider = this.dataset.provider;
+    });
+});
+
+function updateButtonText() {
+    const btnText = document.getElementById('btnText');
+    switch(selectedMethod) {
+        case 'card':
+            btnText.textContent = 'Pay Now';
+            break;
+        case 'mobile':
+            btnText.textContent = 'Pay with Mobile Banking';
+            break;
+        case 'cod':
+            btnText.textContent = 'Place Order';
+            break;
+    }
+}
+
+// Card Number Formatting
+const cardNumberInput = document.getElementById('cardNumber');
+const cardTypeIcon = document.getElementById('cardTypeIcon');
+
+cardNumberInput.addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+    e.target.value = formattedValue;
+
+    // Detect card type
+    if (value.startsWith('4')) {
+        cardTypeIcon.className = 'card-type-icon fab fa-cc-visa show';
+        cardTypeIcon.style.color = '#1a1f71';
+    } else if (value.startsWith('5')) {
+        cardTypeIcon.className = 'card-type-icon fab fa-cc-mastercard show';
+        cardTypeIcon.style.color = '#eb001b';
+    } else if (value.startsWith('3')) {
+        cardTypeIcon.className = 'card-type-icon fab fa-cc-amex show';
+        cardTypeIcon.style.color = '#006fcf';
+    } else {
+        cardTypeIcon.classList.remove('show');
+    }
+});
+
+// Expiry Date Formatting
+const expiryDateInput = document.getElementById('expiryDate');
+expiryDateInput.addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+    }
+    e.target.value = value;
+});
+
+// CVV Validation
+const cvvInput = document.getElementById('cvv');
+cvvInput.addEventListener('input', function(e) {
+    e.target.value = e.target.value.replace(/\D/g, '');
+});
+
+// Mobile Number Validation
+const mobileNumberInputs = document.querySelectorAll('input[type="tel"]');
+mobileNumberInputs.forEach(input => {
+    input.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '');
+    });
+});
+
+// ZIP Code Validation
+const zipCodeInput = document.getElementById('zipCode');
+zipCodeInput.addEventListener('input', function(e) {
+    // Allow numbers for Bangladeshi post codes
+    e.target.value = e.target.value.replace(/\D/g, '');
+});
+
+// Form Validation
+function validateForm() {
+    const email = document.getElementById('email').value;
+    const firstName = document.getElementById('firstName').value;
+    const lastName = document.getElementById('lastName').value;
+    const address = document.getElementById('address').value;
+    const city = document.getElementById('city').value;
+    const state = document.getElementById('state').value;
+    const zipCode = document.getElementById('zipCode').value;
+
+    if (!email || !firstName || !lastName || !address || !city || !state || !zipCode) {
+        showError('Please fill in all required fields.');
+        return false;
+    }
+
+    if (selectedMethod === 'card') {
+        const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+        const expiryDate = document.getElementById('expiryDate').value;
+        const cvv = document.getElementById('cvv').value;
+        const cardholderName = document.getElementById('cardholderName').value;
+
+        if (!cardNumber || !expiryDate || !cvv || !cardholderName) {
+            showError('Please fill in all card details.');
+            return false;
+        }
+
+        if (cardNumber.length < 13 || cardNumber.length > 19) {
+            showError('Please enter a valid card number.');
+            return false;
+        }
+
+        if (!validateExpiryDate(expiryDate)) {
+            showError('Please enter a valid expiry date.');
+            return false;
+        }
+
+        if (cvv.length < 3 || cvv.length > 4) {
+            showError('Please enter a valid CVV.');
+            return false;
+        }
+    }
+
+    if (selectedMethod === 'mobile') {
+        const mobileNumber = document.querySelector('#mobileForm input[type="tel"]').value;
+        if (!mobileNumber || mobileNumber.length !== 10) {
+            showError('Please enter a valid 10-digit mobile number.');
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function validateExpiryDate(expiryDate) {
+    const [month, year] = expiryDate.split('/');
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear() % 100;
+    const currentMonth = currentDate.getMonth() + 1;
+
+    if (!month || !year || month < 1 || month > 12) {
+        return false;
+    }
+
+    const expiryYear = parseInt(year);
+    const expiryMonth = parseInt(month);
+
+    if (expiryYear < currentYear || (expiryYear === currentYear && expiryMonth < currentMonth)) {
+        return false;
+    }
+
+    return true;
+}
+
+function showError(message) {
+    const errorAlert = document.getElementById('errorAlert');
+    const errorMessage = document.getElementById('errorMessage');
+    errorMessage.textContent = message;
+    errorAlert.classList.add('show');
+
+    setTimeout(() => {
+        errorAlert.classList.remove('show');
+    }, 5000);
+}
+
+function showSuccess(message) {
+    const successAlert = document.getElementById('successAlert');
+    const successMessage = document.getElementById('successMessage');
+    successMessage.textContent = message;
+    successAlert.classList.add('show');
+
+    setTimeout(() => {
+        successAlert.classList.remove('show');
+    }, 5000);
+}
+
+// Prepare form data for API submission
+function prepareFormData() {
+    const billingData = {
+        buyer_id: BUYER_ID,
+        email: document.getElementById('email').value,
+        first_name: document.getElementById('firstName').value,
+        last_name: document.getElementById('lastName').value,
+        address: document.getElementById('address').value,
+        mobile: document.querySelector('#paymentForm input[name="mobile"]').value || document.querySelector('#paymentForm input[type="tel"]').value,
+        city: document.getElementById('city').value,
+        division: document.getElementById('state').value,
+        post_code: document.getElementById('zipCode').value,
+        price: 500, // Get from order summary
+        delivery: 70, // Get from order summary
+        service: 10, // Get from order summary
+
+    };
+
+    console.log(billingData);
+
+    // Add payment method specific data
+    if (selectedMethod === 'card') {
+        billingData.card_number = document.getElementById('cardNumber').value.replace(/\s/g, '');
+        billingData.expiry_date = document.getElementById('expiryDate').value;
+        billingData.cvv = document.getElementById('cvv').value;
+        billingData.cardholder_name = document.getElementById('cardholderName').value;
+    } else if (selectedMethod === 'mobile') {
+        billingData.mobile_banking = selectedMobileProvider;
+        billingData.payment_mobile = document.querySelector('#mobileForm input[type="tel"]').value;
+    }
+
+    return billingData;
+}
+
+// Get CSRF token for Laravel
+function getCSRFToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+}
+
+// Form Submission
+const paymentForm = document.getElementById('paymentForm');
+const submitBtn = document.getElementById('submitBtn');
+const btnText = document.getElementById('btnText');
+const spinner = document.getElementById('spinner');
+
+paymentForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    if (!validateForm()) {
+        return;
+    }
+
+    // Show loading state
+    submitBtn.disabled = true;
+    btnText.textContent = 'Processing...';
+    spinner.style.display = 'inline-block';
+
+    try {
+        const formData = prepareFormData();
+        
+        const response = await fetch(`${API_BASE_URL}/products/buy/${PRODUCT_ID}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                // Add authorization header if needed
+                'Authorization': 'Bearer ' + localStorage.getItem('auth_token'),
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            // Success - show success modal
+            const transactionId = 'UCL-' + Date.now();
+            document.getElementById('transactionId').textContent = transactionId;
+            
+            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+
+            // Reset form
+            paymentForm.reset();
+            cardTypeIcon.classList.remove('show');
+            providerOptions.forEach(o => o.classList.remove('active'));
+            providerOptions[0].classList.add('active');
+            
+            showSuccess(result.message || 'Purchase completed successfully!');
+        } else {
+            // Handle validation errors or other API errors
+            let errorMessage = 'An error occurred while processing your payment.';
+            
+            if (result.errors) {
+                // Laravel validation errors
+                const firstError = Object.values(result.errors)[0];
+                errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+            } else if (result.message) {
+                errorMessage = result.message;
+            }
+            
+            showError(errorMessage);
+        }
+    } catch (error) {
+        console.error('Payment error:', error);
+        showError('Network error. Please check your connection and try again.');
+    } finally {
+        // Reset button state
+        submitBtn.disabled = false;
+        updateButtonText();
+        spinner.style.display = 'none';
+    }
+});
+
+// Initialize tooltips
+const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+});
+    </script>
+</body>
+</html>

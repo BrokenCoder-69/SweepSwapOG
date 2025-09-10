@@ -526,144 +526,33 @@
           >
             <i class="fas fa-comment"></i> Message Seller
           </a>
-          <button
+          <a
             class="btn btn-danger flex-fill"
             id="report-product"
-            data-bs-toggle="modal"
-            data-bs-target="#reportModal"
+            href="../users/report.html"
+
+
           >
             <i class="fas fa-flag"></i> Report
-          </button>
+        </a>
         </div>
       </div>
     </div>
 
-    <!-- Report Modal -->
-    <div
-      class="modal fade"
-      id="reportModal"
-      tabindex="-1"
-      aria-labelledby="reportModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="reportModalLabel">Report Product</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <form id="report-form">
-              <div class="mb-3">
-                <label for="report-reason" class="form-label">Reason</label>
-                <select class="form-select" id="report-reason" required>
-                  <option value="" selected disabled>Select a reason</option>
-                  <option value="inappropriate">Inappropriate content</option>
-                  <option value="spam">Spam</option>
-                  <option value="fraud">Fraudulent listing</option>
-                  <option value="copyright">Copyright infringement</option>
-                  <option value="other">Others</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label for="report-description" class="form-label"
-                  >Description</label
-                >
-                <textarea
-                  class="form-control"
-                  id="report-description"
-                  rows="4"
-                  placeholder="Please provide more details about your report..."
-                ></textarea>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Cancel
-            </button>
-            <button type="button" class="btn btn-danger" id="submit-report">
-              Submit Report
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <script src="/Front-end/javascripts/products.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
       const params = new URLSearchParams(window.location.search);
       const id = params.get("id");
+      const seller_id = 1;
       console.log(id);
 
       ///////////
       //////////
       /////////
 
-      // Modified fetchProduct to include image
-      async function fetchProduct(id) {
-        try {
-          const res = await fetch(`${API_URL}/products/${id}`);
-          if (!res.ok) throw new Error("Product not found");
-          const p = await res.json();
-
-          document.getElementById("product-name").textContent =
-            p.name || "Unnamed Product";
-          document.getElementById("product-description").textContent =
-            p.description || "No description available.";
-          document.getElementById("product-category").textContent =
-            p.category || "N/A";
-          document.getElementById("product-condition").textContent = p.is_used
-            ? "Used"
-            : "New";
-          document.getElementById("product-price").textContent = `$${
-            p.price || "N/A"
-          }`;
-          document.getElementById("product-seller").textContent = `Sold by: ${
-            p.user?.name || "Unknown Seller"
-          }`;
-          document.getElementById("product-image").src = p.images
-            ? `http://127.0.0.1:8000${p.images}`
-            : "https://via.placeholder.com/800x600?text=No+Image+Available";
-
-          const currentUserId = localStorage.getItem("user_id");
-          if (
-            p.user &&
-            currentUserId &&
-            parseInt(currentUserId) === p.user.id
-          ) {
-            document.getElementById("add-to-cart").style.display = "none";
-            document.getElementById("add-to-wishlist").style.display = "none";
-            document.getElementById("message-seller").style.display = "none";
-            document.getElementById("report-product").style.display = "none";
-            document.getElementById("user-rating-section").style.display =
-              "none";
-          } else if (p.user?.id) {
-            document.getElementById("product-details").dataset.sellerId =
-              p.user.id;
-            fetchProductRatings(p.user.id);
-          }
-        } catch (error) {
-          console.error("Error fetching product:", error);
-          document.getElementById("product-details").innerHTML = `
-      <div class="text-center py-5">
-        <h3>Product Not Found</h3>
-        <p>The product you're looking for doesn't exist.</p>
-        <a href="list.html" class="btn btn-primary">Back to Collection</a>
-      </div>
-    `;
-        }
-      }
+   
 // Fetch and display product ratings
 async function fetchAndDisplayRatings(userId) {
   try {
@@ -746,6 +635,7 @@ async function fetchProduct(id) {
       document.getElementById("user-rating-section").style.display = "none";
     } else if (p.user?.id) {
       document.getElementById("product-details").dataset.sellerId = p.user.id;
+
       fetchAndDisplayRatings(p.user.id); // Fetch ratings for the seller
     }
   } catch (error) {
@@ -835,70 +725,6 @@ document.addEventListener("DOMContentLoaded", () => {
 // loadRatings(1); // This is no longer needed as fetchAndDisplayRatings is called in fetchProduct
 
 // Call fetchProduct with the product ID
-fetchProduct(id);
-
-
-
-
-      // Submit report
-      // Helper function to submit a report
-async function submitReport(userId, token, reason, description) {
-  try {
-    const response = await fetch(`${API_URL}/users/${userId}/report`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ reason, description }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to submit report");
-    }
-
-    return await response.json(); // success response
-  } catch (err) {
-    console.error("Report submission error:", err.message);
-    throw err;
-  }
-}
-
-// Event listener for report submission
-document.getElementById("submit-report").addEventListener("click", async () => {
-  const reason = document.getElementById("report-reason").value;
-  const description = document.getElementById("report-description").value;
-
-  if (!reason) {
-    alert("Please select a reason for your report");
-    return;
-  }
-
-  const token = localStorage.getItem("auth_token");
-  if (!token) {
-    alert("Please log in to report this user.");
-    return;
-  }
-
-  try {
-    // 🔹 Make sure 'id' is available (from URL, JWT, or global variable)
-    const result = await submitReport(id, token, reason, description);
-
-    alert("Your report has been submitted successfully. Thank you!");
-
-    // Close modal
-    const modal = bootstrap.Modal.getInstance(document.getElementById("reportModal"));
-    modal.hide();
-
-    // Reset form
-    document.getElementById("report-form").reset();
-  } catch (error) {
-    alert(error.message);
-  }
-});
-
-// Load product/user data (assuming you already have this function)
 fetchProduct(id);
 
 
