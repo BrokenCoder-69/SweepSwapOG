@@ -69,6 +69,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('products/{proposeeProductId}/propose-swap', [SwapController::class, 'propose']);
     Route::post('swaps/{id}/accept', [SwapController::class, 'accept']);
     Route::post('swaps/{id}/reject', [SwapController::class, 'reject']);
+    Route::get('swaps/notifications', [SwapController::class, 'notification']);
+
 
     // Purchase routes
     Route::get('purchases', [PurchaseController::class, 'index']);                  // List all purchases
@@ -83,6 +85,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Reports
     Route::post('users/report/{id}', [ReportController::class, 'store']);
+
+    //Dedicated users product
+    Route::get('users/products' , [SwapController::class, 'product_list']);
 
 
 

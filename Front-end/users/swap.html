@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Propose Swap</title>
+
+  <!-- Bootstrap CSS -->
+  <link 
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" 
+    rel="stylesheet"
+  >
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    #productDetails {
+      transition: all 0.3s ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+  <div class="container py-5">
+    <div class="card shadow-lg p-4">
+      <h2 class="mb-3 text-center">Propose a Swap</h2>
+      <p class="text-muted text-center">Choose one of your products to offer in exchange</p>
+
+      <!-- Dropdown -->
+      <div class="mb-3">
+        <label for="productSelect" class="form-label fw-bold">My Products</label>
+        <select id="productSelect" class="form-select">
+          <option selected disabled>Loading...</option>
+        </select>
+      </div>
+
+      <!-- Product details -->
+      <div id="productDetails" class="mt-4 d-none">
+        <h4 id="prodName"></h4>
+        <p id="prodDesc"></p>
+        <ul class="list-group">
+          <li class="list-group-item"><b>Category:</b> <span id="prodCategory"></span></li>
+          <li class="list-group-item"><b>Used:</b> <span id="prodUsed"></span></li>
+          <li class="list-group-item"><b>Usage Duration:</b> <span id="prodDuration"></span></li>
+          <li class="list-group-item"><b>Price:</b> $<span id="prodPrice"></span></li>
+          <li class="list-group-item"><b>Status:</b> <span id="prodStatus"></span></li>
+        </ul>
+        <img id="prodImage" class="img-fluid rounded mt-3 shadow" alt="Product Image">
+
+        <!-- Swap Button -->
+        <div class="mt-4">
+          <button id="proposeSwapBtn" class="btn btn-primary">Propose Swap</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const productSelect = document.getElementById("productSelect");
+      const details = document.getElementById("productDetails");
+      const proposeSwapBtn = document.getElementById("proposeSwapBtn");
+
+      // Product detail elements
+      const prodName = document.getElementById("prodName");
+      const prodDesc = document.getElementById("prodDesc");
+      const prodCategory = document.getElementById("prodCategory");
+      const prodUsed = document.getElementById("prodUsed");
+      const prodDuration = document.getElementById("prodDuration");
+      const prodPrice = document.getElementById("prodPrice");
+      const prodStatus = document.getElementById("prodStatus");
+      const prodImage = document.getElementById("prodImage");
+
+      const token = localStorage.getItem("auth_token");
+
+      // --- Parse query params ---
+      const urlParams = new URLSearchParams(window.location.search);
+      const proposeeProductId = urlParams.get("productId"); // product you want
+      const swapperId = urlParams.get("swapperid"); // seller id (not directly used here, but available if needed)
+
+      let selectedProduct = null; // proposer product (your product)
+
+      // Fetch MY products
+      fetch("http://127.0.0.1:8000/api/users/products", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`, 
+          "Accept": "application/json"
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          productSelect.innerHTML = `<option selected disabled>Choose one of your products</option>`;
+
+          data.data.forEach(product => {
+            let option = document.createElement("option");
+            option.value = product.id;
+            option.textContent = product.name;
+            option.dataset.product = JSON.stringify(product);
+            productSelect.appendChild(option);
+          });
+        })
+        .catch(err => {
+          console.error(err);
+          productSelect.innerHTML = `<option disabled>Error loading products</option>`;
+        });
+
+      // Show details of MY product
+      productSelect.addEventListener("change", function () {
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+        selectedProduct = JSON.parse(selectedOption.dataset.product);
+
+        prodName.textContent = selectedProduct.name;
+        prodDesc.textContent = selectedProduct.description;
+        prodCategory.textContent = selectedProduct.category;
+        prodUsed.textContent = selectedProduct.is_used ? "Yes" : "No";
+        prodDuration.textContent = selectedProduct.usage_duration;
+        prodPrice.textContent = selectedProduct.price;
+        prodStatus.textContent = selectedProduct.status;
+        prodImage.src = "http://127.0.0.1:8000" + selectedProduct.images;
+
+        details.classList.remove("d-none");
+      });
+
+      // Handle propose swap button click
+      proposeSwapBtn.addEventListener("click", async function () {
+        if (!selectedProduct) {
+          alert("Please select one of your products first!");
+          return;
+        }
+
+        try {
+          const res = await fetch(`http://127.0.0.1:8000/api/products/${proposeeProductId}/propose-swap`, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              proposer_product_id: selectedProduct.id // YOUR product ID
+            })
+          });
+
+          const result = await res.json();
+
+          if (res.ok) {
+            alert("Swap proposed successfully!");
+          } else {
+            alert("Failed to propose swap: " + (result.message || "Unknown error"));
+          }
+        } catch (err) {
+          console.error("Error proposing swap:", err);
+          alert("Error proposing swap");
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -86,8 +86,19 @@
 
                     <p><b>$${product.price}</b></p>
 
-                    <a href="buy.html?productId=${product.id}" class="btn btn-primary btn-sm">Proceed to Buy</a>
+
+
+
+                    <a href="buy.html?productId=${product.id}&productPrice=${product.price}" class="btn btn-primary btn-sm">Proceed to Buy</a>
                     ${isOwner ? `
+
+
+                    
+                   <a href="swap.html?productId=${product.id}&swapperid=${product.user_id}" 
+                      class="btn btn-warning btn-sm">Swap</a>
+
+
+
 
                     <button onclick="deleteProduct(${product.id})" class="btn btn-danger btn-sm">Remove</button>
                     ` : ""}

@@ -106,11 +106,11 @@
     }
 
     // Example delete function
-    async function deleteProduct(cartId) {
+    async function deleteProduct(wishlistId) {
         if (!confirm("Remove this item from your cart?")) return;
 
         try {
-        const res = await fetch(`http://127.0.0.1:8000/api/cart/${cartId}`, {
+        const res = await fetch(`http://127.0.0.1:8000/api/wishlist/${wishlistId}`, {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` }
         });

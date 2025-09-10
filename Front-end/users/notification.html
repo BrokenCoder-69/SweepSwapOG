@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swap Proposals</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .table-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .btn-accept {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-reject {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-accept:hover, .btn-reject:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center mb-4">My Swap Proposals</h2>
+        <div class="table-container">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Proposer</th>
+                        <th scope="col">Their Product</th>
+                        <th scope="col">My Product</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="swapTableBody">
+                    <!-- Swap proposals will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const token = localStorage.getItem("auth_token");
+
+
+        // Function to fetch swap proposals
+        async function fetchSwapProposals() {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/swaps/notifications', {
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                const swaps = await response.json();
+                console.log(swaps);
+                populateTable(swaps);
+            } catch (error) {
+                console.error('Error fetching swap proposals:', error);
+                alert('Failed to load swap proposals.');
+            }
+        }
+
+        // Function to populate the table with swap proposals
+        function populateTable(swaps) {
+            const tableBody = document.getElementById('swapTableBody');
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            swaps.forEach((swap, index) => {
+                const row = document.createElement('tr');
+                const status = swap.status || 'Pending';
+                const actions = status.toLowerCase() === 'pending' 
+                    ? `
+                        <button class="btn btn-accept btn-sm me-2" onclick="handleAction(${swap.id}, 'accept')">Accept</button>
+                        <button class="btn btn-reject btn-sm" onclick="handleAction(${swap.id}, 'reject')">Reject</button>
+                    `
+                    : '-';
+                row.innerHTML = `
+                    <th scope="row">${index + 1}</th>
+                    <td>${swap.proposee?.name || 'Unknown'}</td>
+                    <td>${swap.proposer_product?.name || 'Unknown'}</td>
+                    <td>${swap.proposee_product?.name || 'Unknown'}</td>
+                    <td>${status}</td>
+                    <td>${actions}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Function to handle Accept/Reject actions
+        async function handleAction(swapId, action) {
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/api/swaps/${swapId}/${action}`, {
+                    method: 'POST',
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    alert(`Swap ${action}ed successfully!`);
+                    window.location.reload(); // Reroute to same page
+                } else {
+                    alert(`Failed to ${action} swap.`);
+                }
+            } catch (error) {
+                console.error(`Error ${action}ing swap:`, error);
+                alert(`Error ${action}ing swap.`);
+            }
+        }
+
+        // Fetch swap proposals on page load
+        document.addEventListener('DOMContentLoaded', fetchSwapProposals);
+    </script>
+</body>
+</html>

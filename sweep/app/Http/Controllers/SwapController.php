@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Swap;
 use App\Models\Product;
+use Illuminate\Container\Attributes\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth as FacadesAuth;
 
 class SwapController extends Controller
 {
@@ -26,8 +28,24 @@ class SwapController extends Controller
 
 
 
+    public function product_list(Request $request)
+    {
+        // Get the currently logged-in user
+        $user = $request->user();
 
+        // If no user is logged in, return unauthorized response
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
 
+        // Fetch all products belonging to the user
+        $products = Product::with('user')->where('user_id', $user->id)->get();
+
+        return response()->json([
+            'message' => 'Products retrieved successfully',
+            'data' => $products
+        ], 200);
+    }
 
 
 
@@ -72,55 +90,30 @@ class SwapController extends Controller
     }
 
 
-
-    // Accept a swap
-    public function accept(Request $request, $id)
+    //notification
+    public function notification(Request $request)
     {
-        $swap = Swap::findOrFail($id);
-
-        if ($swap->proposee_id !== $request->user()->id) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
-        }
-
-        if ($swap->status !== 'pending') {
-            return response()->json(['success' => false, 'message' => 'Swap not pending'], 400);
-        }
-
-        $swap->status = 'accepted';
-        $swap->save();
-
-        // Mark products as swapped
-        $proposerProduct = Product::findOrFail($swap->proposer_product_id);
-        $proposerProduct->status = 'swapped';
-        $proposerProduct->save();
-
-        $proposeeProduct = Product::findOrFail($swap->proposee_product_id);
-        $proposeeProduct->status = 'swapped';
-        $proposeeProduct->save();
-
-        return response()->json(['success' => true, 'message' => 'Swap accepted']);
+        $user = $request->user();
+        // Count swaps where the user is the proposer
+        $offer = Swap::with(['proposee', 'proposerProduct', 'proposeeProduct'])
+                    ->where('proposee_id', $user->id)
+                    ->get();
+        return response()->json($offer);
     }
 
 
 
-
-
-    // Reject a swap
-    public function reject(Request $request, $id)
+    public function accept($id)
     {
         $swap = Swap::findOrFail($id);
+        $swap->update(['status' => 'accepted']);
+        return response()->json(['message' => 'Swap accepted']);
+    }
 
-        if ($swap->proposee_id !== $request->user()->id) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
-        }
-
-        if ($swap->status !== 'pending') {
-            return response()->json(['success' => false, 'message' => 'Swap not pending'], 400);
-        }
-
-        $swap->status = 'rejected';
-        $swap->save();
-
-        return response()->json(['success' => true, 'message' => 'Swap rejected']);
+    public function reject($id)
+    {
+        $swap = Swap::findOrFail($id);
+        $swap->update(['status' => 'rejected']);
+        return response()->json(['message' => 'Swap rejected']);
     }
 }
